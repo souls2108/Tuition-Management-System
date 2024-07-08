@@ -16,6 +16,7 @@ const userSchema = new mongoose.Schema(
             unique: true,
             lowercase: true,
             trim: true,
+            index: true,
         },
         phone: {
             type: String,
@@ -28,7 +29,7 @@ const userSchema = new mongoose.Schema(
         },
         parentOf:[
             {
-                type: mongoose.Types.ObjectId,
+                type: mongoose.Schema.Types.ObjectId,
                 ref: "User"
             }
         ],
