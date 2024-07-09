@@ -1,10 +1,10 @@
 import mongoose from "mongoose";
 
-const sessionSchema = new mongoose.Model(
+const sessionSchema = new Schema(
     {
         course: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: true,
+            ref: "Course",
             required: true,            
         },
         startAt: {
@@ -13,7 +13,6 @@ const sessionSchema = new mongoose.Model(
         },
         endAt: {
             type: Date,
-            required: true
         },
         fees: {
             type: Number,
