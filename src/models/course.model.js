@@ -22,6 +22,7 @@ const courseSchema = new mongoose.Model(
         description: {
             type: String,
             default: "_",
+            maxLength: 40,
         }
     },
     {
@@ -31,4 +32,4 @@ const courseSchema = new mongoose.Model(
 
 
 
-export const Institute = mongoose.model("Institute", instituteSchema);
+export const Course = mongoose.model("Course", courseSchema);
