@@ -11,11 +11,19 @@ const instituteSchema = new mongoose.Model(
             type: mongoose.Schema.Types.ObjectId,
             ref: "User",
             required: true
-        }
+        },
+        admin: [
+            {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "User",
+            }
+        ],
     },
     {
         timestamps: true,
     }
 );
+
+
 
 export const Institute = mongoose.model("Institute", instituteSchema);
