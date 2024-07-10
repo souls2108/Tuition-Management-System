@@ -1,6 +1,21 @@
-import mongoose from "mongoose";
+import mongoose, { Schema } from "mongoose";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+
+const userRoleSchema = new Schema(
+    {
+        institute: {
+            type: Schema.Types.ObjectId,
+            ref: Institute,
+            required: true,
+        },
+        role: {
+            type: String,
+            enum: ["OWNER", "ADMIN", "TEACHER", "STUDENT"],
+            required: true,
+        }
+    }
+)
 
 const userSchema = new Schema(
     {
@@ -27,12 +42,10 @@ const userSchema = new Schema(
                 message: 'Phone number must contain only digits (0-9)'
             }
         },
-        parentOf:[
-            {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: "User"
-            }
-        ],
+        roles: {
+            type: [userRoleSchema],
+            default: []
+        },
         password: {
             type: String,
             required: [true, "password is required"]
