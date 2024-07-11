@@ -1,6 +1,6 @@
 import { Router } from "express";
-import {
-
+import { 
+    registerUser,
 } from "../controllers/user.controller.js"
 
 
@@ -13,6 +13,8 @@ const router = Router();
  * getUserIdsByName 9
  * getUserProfile:_id 10
  */
+router.route("/register").post(registerUser);
+
 
 // Secure routes
 /**

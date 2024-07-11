@@ -16,6 +16,12 @@ import bcrypt from "bcrypt";
 //         }
 //     }
 // )
+const validatePhone = function(phone) {
+    // Regular expression to match only digits (0-9)
+    const phoneRegExp = '/^\d+$/';
+    return phoneRegExp.test(phone);
+};
+
 
 const userSchema = new Schema(
     {
@@ -27,7 +33,7 @@ const userSchema = new Schema(
         },
         email: {
             type: String,
-            required: [true, 'email is required'],
+            required: true,
             unique: true,
             lowercase: true,
             trim: true,
@@ -35,16 +41,18 @@ const userSchema = new Schema(
         },
         phone: {
             type: String,
-            required: [true, 'Phone number is required'],
+            required: true,
             unique: true,
             validate: {
-                validator: validatePhone,
-                message: 'Phone number must contain only digits (0-9)'
+                validator: function(v) {
+                    return /^\d+$/.test(v);
+                },
+                message: (props) => `${props} Phone number must contain only digits (0-9)`
             }
         },
         password: {
             type: String,
-            required: [true, "password is required"]
+            required: true,
         },
         refreshToken: {
             type: String
@@ -54,12 +62,6 @@ const userSchema = new Schema(
         timestamps: true,
     }
 );
-
-const validatePhone = function(value) {
-    // Regular expression to match only digits (0-9)
-    const phoneRegExp = '/^\d+$/';
-    return phoneRegExp.test(value);
-};
 
 userSchema.pre("save", async function(next) {
     if(!this.isModified("password")) return next();
@@ -97,4 +99,4 @@ userSchema.methods.generateRefreshToken = function() {
 }
 
 
-export const User = mongoose.Model("User", userSchema); 
+export const User = mongoose.model("User", userSchema); 
