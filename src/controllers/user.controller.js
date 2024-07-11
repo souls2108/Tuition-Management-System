@@ -3,9 +3,30 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { User } from "../models/user.model.js";
 
+const generateAccessAndRefreshToken = async(user) => {
+    try{
+        if(!user) { 
+            console.log("Extra DB call");
+            user = await User.findById(userId);
+        } else {
+            console.log("No DB call");
+        }
+        const accessToken =  user.generateAccessToken();
+        const refreshToken = user.generateRefreshToken();
+        
+        user.refreshToken = refreshToken;
+        await user.save({ validateBeforeSave: false });
+        
+        return {accessToken, refreshToken};
+    } catch (error) {
+        throw new ApiError(500, "Something went wrong while generating refresh and access token.");
+    }
+}
+
 const registerUser = asyncHandler( async (req, res) => {
     const {displayName, email, phone, password} = req.body;
 
+    // input validation
     if(!displayName || displayName?.trim() === "") {
         throw new ApiError(400, "Display Name is required.");
     }
@@ -55,9 +76,59 @@ const registerUser = asyncHandler( async (req, res) => {
 }
 );
 
+const loginUser = asyncHandler( async (req, res) => {
+    const {email, phone, password} = req.body;
+    console.log(email, phone, password, "\n\n");
+    if(!email && !phone) {
+        throw new ApiError(400, "Email or Phone number is required.");
+    }
+
+    if(!password) {
+        throw new ApiError(400, "Password is required.");
+    }
+
+    const user = await User.findOne(
+        {
+            $or: [{email}, {phone}]
+        }
+    );
+
+    if(!user) {
+        throw new ApiError(404, "User not found.");
+    }
+
+    const isPasswordValid = await user.isPasswordCorrect(password);
+    if(!isPasswordValid) {
+        throw new ApiError(401, "Invalid user credentials.");
+    }
+
+    const {accessToken, refreshToken} = generateAccessAndRefreshToken( user);
+
+    const loggedInUser = await User.findById(user._id).
+    select("-password -refreshToken");
+
+    const options = {
+        httpOnly: true,
+        secure: true,
+    };
+
+    return res.status(200)
+    .cookie("accessToken", accessToken)
+    .cookie("refreshToken", refreshToken)
+    .json(
+        new ApiResponse(
+            200,
+            loggedInUser,
+            "User logged In successfully"
+        )
+    );
+});
+
+
 
 
 
 export {
-    registerUser
+    registerUser,
+    loginUser,
 }
