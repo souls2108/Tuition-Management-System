@@ -42,10 +42,6 @@ const userSchema = new Schema(
                 message: 'Phone number must contain only digits (0-9)'
             }
         },
-        // roles: {
-        //     type: [userRoleSchema],
-        //     default: []
-        // },
         password: {
             type: String,
             required: [true, "password is required"]

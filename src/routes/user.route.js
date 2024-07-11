@@ -8,24 +8,21 @@ const router = Router();
 
 // open routes
 /**
- * registerUser
- * login
- * getUserIdsByName
- * getUserProfile:_id
+ * registerUser 1
+ * login 2
+ * getUserIdsByName 9
+ * getUserProfile:_id 10
  */
 
 // Secure routes
 /**
- * logout
- * refresh-token
- * change-password
- * current-user
- * update-account
- * change-password
- * 
- * /i/:institutename
- * /createInstituteRequest
- * /userInstituteRequests
+ * logout 4
+ * refresh-token 3
+ * change-password 5
+ * current-user 6
+ * update-account 7
+ * change-password 8
+ * delete-user
  * 
  * /createEnrollmentRequest
  * /userEnrollmentRequests

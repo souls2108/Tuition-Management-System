@@ -1,0 +1,5 @@
+/**
+ *  /i/:institutename
+ * /createInstituteRequest
+ * /userInstituteRequests
+ */

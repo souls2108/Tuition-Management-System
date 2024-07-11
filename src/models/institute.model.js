@@ -12,12 +12,6 @@ const instituteSchema = new Schema(
             ref: "User",
             required: true
         },
-        admin: [
-            {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: "User",
-            }
-        ],
     },
     {
         timestamps: true,
