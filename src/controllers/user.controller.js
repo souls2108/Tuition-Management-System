@@ -213,11 +213,36 @@ const getCurrentUser = asyncHandler( async (req, res) => {
     ));
 });
 
+const updateAccountDetails = asyncHandler (async (req, res) => {
+    const {displayName, email, phone} = req.body;
+
+    if (!displayName || !email || !phone) {
+        throw new ApiError(400, "All fields are required");
+    }
+
+    const user = await User.findByIdAndUpdate(
+        req.user?._id,
+        {
+            $set: {
+                displayName,
+                email,
+                phone,
+            }
+        },
+        {new: true}
+    ).select("-password");
+
+    return res
+    .status(200)
+    .json(new ApiResponse(200, user, "Account details updated successfully"));
+});
+
 export {
     registerUser,
     loginUser,
     logoutUser,
     refreshAccessToken,
     changeCurrentPassword,
-    getCurrentUser
+    getCurrentUser,
+    updateAccountDetails,
 }
