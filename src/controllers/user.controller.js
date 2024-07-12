@@ -3,17 +3,12 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { User } from "../models/user.model.js";
 
-const generateAccessAndRefreshToken = async(user) => {
+const generateAccessAndRefreshToken = async(userId) => {
     try{
-        if(!user) { 
-            console.log("Extra DB call");
-            user = await User.findById(userId);
-        } else {
-            console.log("No DB call");
-        }
+        const user = await User.findById(userId);
         const accessToken =  user.generateAccessToken();
         const refreshToken = user.generateRefreshToken();
-        
+
         user.refreshToken = refreshToken;
         await user.save({ validateBeforeSave: false });
         
@@ -78,7 +73,7 @@ const registerUser = asyncHandler( async (req, res) => {
 
 const loginUser = asyncHandler( async (req, res) => {
     const {email, phone, password} = req.body;
-    console.log(email, phone, password, "\n\n");
+
     if(!email && !phone) {
         throw new ApiError(400, "Email or Phone number is required.");
     }
@@ -94,7 +89,7 @@ const loginUser = asyncHandler( async (req, res) => {
     );
 
     if(!user) {
-        throw new ApiError(404, "User not found.");
+        throw new ApiError(404, "User does not exist")
     }
 
     const isPasswordValid = await user.isPasswordCorrect(password);
@@ -102,7 +97,7 @@ const loginUser = asyncHandler( async (req, res) => {
         throw new ApiError(401, "Invalid user credentials.");
     }
 
-    const {accessToken, refreshToken} = generateAccessAndRefreshToken( user);
+    const {accessToken, refreshToken} = await generateAccessAndRefreshToken( user._id);
 
     const loggedInUser = await User.findById(user._id).
     select("-password -refreshToken");
@@ -124,6 +119,29 @@ const loginUser = asyncHandler( async (req, res) => {
     );
 });
 
+const logoutUser = asyncHandler( async (req, res) => {
+    await User.findByIdAndUpdate(
+        req.user._id,
+        {
+            $unset: {
+                refreshToken: true,
+            }
+        },
+        {
+            new: true
+        }
+    )
+
+    const options = {
+        httpOnly: true,
+        secure: true
+    };
+
+    return res.status(200)
+    .clearCookie("accessToken", options)
+    .clearCookie("refreshToken", options)
+    .json(new ApiResponse(200, {}, "User logged Out"));
+})
 
 
 
@@ -131,4 +149,5 @@ const loginUser = asyncHandler( async (req, res) => {
 export {
     registerUser,
     loginUser,
+    logoutUser,
 }
