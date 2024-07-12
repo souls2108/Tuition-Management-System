@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { 
     changeCurrentPassword,
+    deleteUser,
     getCurrentUser,
     loginUser,
     logoutUser,
@@ -14,8 +15,8 @@ const router = Router();
 
 // open routes
 /**
- * registerUser 1
- * login 2
+ * registerUser 
+ * login 
  * getUserIdsByName 9
  * getUserProfile:_id 10
  */
@@ -24,12 +25,12 @@ router.route("/login").post(loginUser);
 
 // Secure routes
 /**
- * logout 4
- * refresh-token 3
- * change-password 5
- * current-user 6
- * update-account 7
- * change-password 8
+ * logout 
+ * refresh-token 
+ * change-password 
+ * current-user 
+ * update-account 
+ * change-password 
  * delete-user
  * 
  * /createEnrollmentRequest
@@ -37,10 +38,10 @@ router.route("/login").post(loginUser);
  */
 router.route("/logout").post(verifyJWT, logoutUser);
 router.route("/refresh-token").post(refreshAccessToken);
-router.route("/change-password").post(verifyJWT, changeCurrentPassword);
 router.route("/current-user").get(verifyJWT, getCurrentUser);
 router.route("/update-account").patch(verifyJWT, updateAccountDetails);
-
+router.route("/change-password").post(verifyJWT, changeCurrentPassword);
+router.route("/delete-user").delete(verifyJWT, deleteUser);
 // router.router("/register").post(registerUser);
 
 export default router;

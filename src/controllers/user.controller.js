@@ -17,7 +17,7 @@ const generateAccessAndRefreshToken = async(userId) => {
     } catch (error) {
         throw new ApiError(500, "Something went wrong while generating refresh and access token.");
     }
-}
+};
 
 const registerUser = asyncHandler( async (req, res) => {
     const {displayName, email, phone, password} = req.body;
@@ -237,6 +237,23 @@ const updateAccountDetails = asyncHandler (async (req, res) => {
     .json(new ApiResponse(200, user, "Account details updated successfully"));
 });
 
+const deleteUser = asyncHandler( async ( req, res) => {
+    const {confirmDeletion} = req.body;
+
+    if(!confirmDeletion
+        || confirmDeletion !== "DELETE " + req.user.displayName) {
+        throw new ApiError(401, "Deletion cancelled. Confirmation Invalid.");
+    }
+        
+    const user = await User.findByIdAndDelete(req.user._id);
+    
+    if(!user) {
+        throw new ApiError(500, "User not found in DB");
+    }
+
+    return res.status(200).json(new ApiResponse(204, {}, "User account deleted"))
+});
+
 export {
     registerUser,
     loginUser,
@@ -245,4 +262,5 @@ export {
     changeCurrentPassword,
     getCurrentUser,
     updateAccountDetails,
+    deleteUser,
 }
