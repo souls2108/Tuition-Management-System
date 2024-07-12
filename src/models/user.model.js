@@ -16,11 +16,6 @@ import bcrypt from "bcrypt";
 //         }
 //     }
 // )
-const validatePhone = function(phone) {
-    // Regular expression to match only digits (0-9)
-    const phoneRegExp = '/^\d+$/';
-    return phoneRegExp.test(phone);
-};
 
 
 const userSchema = new Schema(
