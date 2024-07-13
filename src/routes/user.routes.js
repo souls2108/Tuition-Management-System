@@ -42,6 +42,8 @@ router.route("/current-user").get(verifyJWT, getCurrentUser);
 router.route("/update-account").patch(verifyJWT, updateAccountDetails);
 router.route("/change-password").post(verifyJWT, changeCurrentPassword);
 router.route("/delete-user").delete(verifyJWT, deleteUser);
-// router.router("/register").post(registerUser);
+
+// TODO: GET USER TRANS
+
 
 export default router;

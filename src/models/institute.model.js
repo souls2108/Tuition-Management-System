@@ -1,13 +1,16 @@
+import { Schema } from "mongoose";
 import mongoose from "mongoose";
 
 const instituteSchema = new Schema(
     {
-        name: {
+        instituteName: {
             type: String,
             required: true,
+            lowercase: true,
+            trim: true,
             unique: true
         },
-        owner: {
+        founder: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "User",
             required: true

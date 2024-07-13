@@ -1,4 +1,4 @@
-import { Schema } from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
 
 const employeeSchema = new Schema(
@@ -15,8 +15,10 @@ const employeeSchema = new Schema(
         },
         role: {
             type: String,
-            enum: ["ADMIN", "STAFF"],
+            enum: ["OWNER", "ADMIN", "STAFF"],
             required: true
         }
     }
 )
+
+export const Employee = mongoose.model("Employee", employeeSchema);

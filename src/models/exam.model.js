@@ -8,6 +8,10 @@ const examSchema = new Schema(
             ref: "Enrollment",
             required: true,
         },
+        examName: {
+            type: String,
+            required: true,
+        },
         time: {
            type: Date,
            required: true, 
@@ -34,5 +38,6 @@ const examSchema = new Schema(
     }
 );
 
+examSchema.index({ enrollment: 1, examName: 1 }, { unique: true })
 
 export const Exam = mongoose.model("Exam", examSchema);

@@ -250,7 +250,8 @@ const deleteUser = asyncHandler( async ( req, res) => {
     if(!user) {
         throw new ApiError(500, "User not found in DB");
     }
-
+    
+    // TODO: check users pending orders
     return res.status(200).json(new ApiResponse(204, {}, "User account deleted"))
 });
 
