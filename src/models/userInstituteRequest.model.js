@@ -34,7 +34,6 @@ const userInstituteRequestSchema = new Schema(
     }
 );
 
-// TODO : Auto delete when { accept / reject }
 
 export const UserInstituteRequest = mongoose.model(
     "UserInstituteRequest", userInstituteRequestSchema

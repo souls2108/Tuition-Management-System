@@ -18,10 +18,10 @@ app.use(cookieParser());
 //routes import
 import userRouter from './routes/user.routes.js'
 import instituteRouter from './routes/institute.routes.js';
-
+import userInstituteRequestRouter from "./routes/userInstitute.routes.js"
 //routes declaration
 app.use("/api/users", userRouter);
 app.use("/api/institute", instituteRouter);
-
+app.use("/api/r", userInstituteRequestRouter);
 
 export { app };

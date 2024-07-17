@@ -1,18 +1,28 @@
 import { Router } from "express";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 import { 
-    createInstitute 
+    createInstitute, 
+    getAllInstitute,
+    getInstitute,
+    getInstituteByName,
+
 } from "../controllers/institute.controller.js";
 
 const router = Router();
-//  HANDLE INSTITUE
-// TODO: CREATE INSTITUTE   1
-router.route("/create-institute").post(verifyJWT, createInstitute)
 
-// TODO: INSTITUTE EMPLOYEE m/w (just check user_id & institue_id DB) 1
-// TODO: INSTITUTE STUDENT m/w 1
-// TODO: INSTITUTE STUDENT REQUEST {C R U} 1
-// TODO: INSTITUTE EMP REQUEST {C R U} 1
+router.use(verifyJWT);
+
+//  HANDLE INSTITUE
+// CREATE INSTITUTE
+router.route("/create-institute").post(createInstitute);
+// GET INSTITUTE
+router.route("/i/all").get( getAllInstitute);
+router.route("/i/name").get( getInstituteByName)
+router.route("/i/:instituteId").get( getInstitute)
+
+// TODO: INSTITUTE EMP REQUEST 
+
+// TODO: INSTITUTE STUDENT REQUEST
 
 
 
