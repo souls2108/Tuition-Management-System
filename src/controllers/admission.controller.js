@@ -1,18 +1,14 @@
 import { Admission } from "../models/admission.model.js";
 import { ApiError } from "../utils/ApiError.js";
 
-
+// XXX : Remove file
 const createAdmission = async (userId, instituteId)=>{
     if (!userId || !instituteId) {
         throw new ApiError(400, "UserId & InstituteId required for admission.");
     }
 
     try {
-        const admission = await Admission.create({
-            user: userId,
-            institute: instituteId,
-        });
-
+        const admission = await Admission.fin(userId, instituteId);
         return admission;
     } catch (error) {
         throw new ApiError( 500, error?.message || "Error on admission DB.");
@@ -102,10 +98,4 @@ const getInstituteAdmissions = async (instituteId) => {
 
 
 export {
-    createAdmission,
-    deleteAdmission,
-    getAdmission,
-    getAdmissionById,
-    getUserAdmissions,
-    getInstituteAdmissions
 }

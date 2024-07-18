@@ -1,33 +1,73 @@
-import { Employee } from "../models/employee.model.js";
-import { Institute } from "../models/institute.model.js";
-import { User } from "../models/user.model.js";
-import { UserInstituteRequest } from "../models/userInstituteRequest.model.js";
+import { AdmissionService } from "../db/services/admission.service.js";
+import { EmployeeServices } from "../db/services/employee.service.js";
+import { InstituteService } from "../db/services/institute.service.js";
+import { UserService } from "../db/services/user.service.js";
+import { InstituteRequestService } from "../db/services/userInstituteRequest.service.js";
+
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
-import { createAdmission, getAdmission } from "./admission.controller.js";
-import { createEmp, getEmployee, updateEmp } from "./employee.controller.js";
 
-//HACK: MOVE TO SERVICE
 const existedRequestEmployeeStudent = async( userId, instituteId, roleType) => {   
-    const existedRequest = await UserInstituteRequest.findOne(
-        {institute: instituteId, user: userId}
-    );
+    const existedRequest = await InstituteRequestService.get(userId, instituteId)
     if(existedRequest) {
         throw new ApiError(400, "Request to Institute already exists.");
     }
-    // CHECK EXISTING STUDENT OR Employee with same role
+    // CHECK existing Student OR Employee with same role
     if (roleType === "STUDENT") {
-        const existedStudent = await getAdmission(userId, instituteId);
+        const existedStudent = await AdmissionService.get(userId, instituteId);
         if(existedStudent) {
             throw new ApiError(400, "User already admitted in Institute.");
         }
     } else {
-        const existedEmp = await getEmployee(userId, instituteId);
+        const existedEmp = await EmployeeServices.get(userId, instituteId);
         if(existedEmp && existedEmp.role === roleType) {
             throw new ApiError(400, "User already employee at institute.");
         }
     }
+}
+
+const handleAcceptedRequest = async ( request) => {
+    const user = await UserService.getUserById( request.user);
+    const institute = await InstituteService.getById( request.institute);
+    if(!user) {
+        throw new ApiError(404, "User Not Found");
+    }
+    if(!institute) {
+        throw new ApiError(404, "Institute Not Found");
+    }
+
+    let requestConfirmation;
+    if(request.roleType === "STUDENT") {
+        requestConfirmation = await AdmissionService.create(
+            request.user,
+            request.institute
+        );
+    }
+    else {
+        if(roleType === "OWNER") {
+            const prevOwner = await EmployeeServices.getInstituteOwner(institute._id);
+            await EmployeeServices.update(prevOwner._id, "ADMIN");
+        }
+        const existedEmp = await EmployeeServices.get(
+            request.user,
+            request.institute
+        );
+        if (!existedEmp) {
+            requestConfirmation = await EmployeeServices.create(
+                request.userId,
+                request.institute,
+                request.roleType
+            );
+        } else {
+            requestConfirmation = await EmployeeServices.update(
+                existedEmp._id,
+                request.roleType
+            );
+        }
+    }
+
+    return requestConfirmation;
 }
 
 const createUserInstituteRequest = asyncHandler( async (req, res) => {
@@ -42,20 +82,19 @@ const createUserInstituteRequest = asyncHandler( async (req, res) => {
         throw new ApiError(400, "InstituteId and roleType is required.");
     }
 
-    try {
-        const institute = Institute.findById( instituteId);
-        if(!institute) {
-            throw new ApiError(404, "Institute Not Found");
-        }
+    const institute = await InstituteService.getById( instituteId);
+    if(!institute) {
+        throw new ApiError(404, "Institute Not Found");
+    }
 
-        await existedRequestEmployeeStudent(userId, instituteId, roleType);
-        
-        const userRequest = await UserInstituteRequest.create({
-            institute: instituteId,
-            user: userId,
+    await existedRequestEmployeeStudent(userId, instituteId, roleType);
+    try {    
+        const userRequest = await InstituteRequestService.create(
+            userId,
+            instituteId,
             roleType,
-            userStatus: "ACCEPT",
-        });
+            userStatus = "ACCEPT",
+        );
 
         return res.status(201)
         .json(
@@ -68,7 +107,7 @@ const createUserInstituteRequest = asyncHandler( async (req, res) => {
         );
     } catch (error) {
         throw new ApiError(500, error?.message 
-            || "Error while requesting Institute.");
+            || "Error while creating request Institute.");
     }
 })
 
@@ -77,12 +116,16 @@ const getUserInstituteRequests = asyncHandler( async (req, res) => {
         throw new ApiError(400, "User id is required.");
     }
     try {
-        const userInstituteRequests = await UserInstituteRequest.find({user: req.user._id});
+        const userInstituteRequests = await InstituteRequestService.getUser(req.user._id)
         
         if(userInstituteRequests.length === 0) {
-            return res.status(200).json(new ApiResponse(200, {}, "No pending requests"));
+            return res
+            .status(200)
+            .json(new ApiResponse(200, {}, "No pending requests"));
         }
-        return res.status(200)
+
+        return res
+        .status(200)
         .json( new ApiResponse(200, userInstituteRequests, "User requests fetched."));
     } catch (error) {
         throw new ApiError(500, error?.message 
@@ -103,55 +146,29 @@ const updateUserInstituteRequest = asyncHandler( async (req, res) => {
         throw new ApiError(400, "RequestId and user are required.");
     }
 
-    try {
-        const request = await UserInstituteRequest.findById(requestId);
-        if(!request) {
-            throw new ApiError(404, "Request not found.");
-        }
-        if(request.user != user._id) {
-            throw new ApiError(409, "User login and user request does not match");
-        }
+    const request = await InstituteRequestService.getById(requestId);
+    if(!request) {
+        throw new ApiError(404, "Request not found.");
+    }
+    if(request.user != user._id) {
+        throw new ApiError(409, "User login and user request does not match");
+    }
+    if(request.userStatus === userStatus) {
+        throw new ApiError(400, "Updated userStatus same as current userStatus");
+    }
 
-        request.userStatus = userStatus;
-        
-        if(request.userStatus === "REJECT") {
-            res.status(200).json(new ApiResponse(200, {}, "Request cancelled.")) ;
-        }
-        else if(request.userStatus === "ACCEPT" && request.instituteStatus === "ACCEPT" ) {
-            // HACK: SERVICE Admission of student or employee
-            const institute = await Institute.findById(request.institute);
-            if(!institute) {
-                throw new ApiError(404, "Institute Not Found");
-            }
+    let requestConfirmation;
+    if(request.userStatus === "REJECT") {
+        res.status(200).json(new ApiResponse(200, {}, "Request cancelled.")) ;
+    }
+    else if(request.userStatus === "ACCEPT" && request.instituteStatus === "ACCEPT" ) {
+        requestConfirmation = await handleAcceptedRequest(request);
+        req.status(200).json(new ApiResponse(200, requestConfirmation, "Request accepted."));
+    }
 
-            let requestConf;
-            if(request.roleType === "STUDENT") {
-                requestConf = createAdmission(request.user, request.institute);
-            }
-            else {
-                const emp = await Employee.findOne(
-                    {
-                        user:user._id, 
-                        institute:institute._id
-                    }
-                );
-                if (!emp) {
-                    requestConf = createEmp(user._id, institute._id, request.roleType);
-                } else {
-                    requestConf = updateEmp(user._id, institute._id, request.roleType);
-                }
-            }
-
-            res.status(200).json(new ApiResponse( 200, requestConf, "Request accepted"));
-
-            const deletedRequest = await UserInstituteRequest.findByIdAndDelete(request._id);
-            
-            if(!deletedRequest) {
-                throw new ApiError(500, "Error while request deletion");
-            }
-        }
-    } catch (error) {
-        throw new ApiError(500, error?.message || "Error while updating request")
+    const deletedRequest = await InstituteRequestService.deleteRequest(request._id);
+    if(!deletedRequest) {
+        throw new ApiError(500, "Error while request deletion");
     }
 
     return res;
@@ -177,137 +194,113 @@ const verifyInstituteRequestPermission = (emp, roleType = "") => {
 }
 
 const createInstituteUserRequest = asyncHandler( async (req, res) => {
+    const emp = req.emp;
+    if(!verifyInstituteRequestPermission(emp, roleType)) {
+        throw new ApiError(403, "Not sufficient permissions to perform action.");
+    }
+    
     const { addUserId, roleType } = req.body;
     if(!addUserId || !roleType) {
-        throw new ApiError(403, "addUserId, roleType field are required.");
+        throw new ApiError(400, "addUserId, roleType field are required.");
     }
-    //HACK: MOVE TO SERVICE, remove import
-    const existedUser = await User.findById(addUserId);
+
+    const existedUser = await UserService.getById(addUserId);
     if(!existedUser) {
         throw new ApiError(404, "User Not Found");
     }
 
+    await existedRequestEmployeeStudent(addUserId, emp.institute, roleType);
+    
+    const instituteRequest = await InstituteRequestService.create(
+        addUserId,
+        emp.institute,
+        roleType,
+        instituteStatus = "ACCEPT",
+    );
 
-    const emp = req.emp;
-    if(!verifyInstituteRequestPermission(emp, roleType)) {
-        throw new ApiError(401, "Not sufficeint permissions to perform action.");
-    }
-
-    try {
-        await existedRequestEmployeeStudent(addUserId, emp.institute, roleType);
-        
-        const instituteRequest = await UserInstituteRequest.create({
-            institute: emp.institute,
-            user: addUserId,
-            roleType,
-            instituteStatus: "ACCEPT",
-        });
-
-        return res.status(201)
-        .json(
-            201,
-            new ApiResponse(
-                201, 
-                instituteRequest,
-                "Request for user created"
-            )
-        );        
-    } catch (error) {
-        throw new ApiError(500, error?.message
-            || "Something went wrong while creating request"
+    return res.status(201)
+    .json(
+        201,
+        new ApiResponse(
+            201, 
+            instituteRequest,
+            "Request for user created"
         )
-    }
+    );
 })
 
 const getInstituteUserRequests = asyncHandler( async (req, res) => {
-    const instituteId = req.params.instituteId || req.body.instituteId;
-    if(!instituteId) {
-        throw new ApiError(400, "InstituteId field is required.");
-    }
-    //HACK: service check instituteId exist
+    const instituteId = req.emp.institute;
     const emp = req.emp;
     if( !verifyInstituteRequestPermission(emp)) {
-        throw new ApiError(403, "Not sufficeint permissions to perform action.");
+        throw new ApiError(
+            403, 
+            "Not sufficient permissions to perform action."
+        );
     }
 
-    try {
-        const userInstituteRequests = await UserInstituteRequest.find({institute: emp.institute});
+    const userInstituteRequests = await InstituteRequestService
+        .getInstitute(instituteId);
         
-        if(userInstituteRequests.length === 0) {
-            return res.status(200).json(new ApiResponse(200, {}, "No pending requests"));
-        }
-        return res.status(200)
-        .json( new ApiResponse(200, userInstituteRequests, "Institute requests fetched."));
-    } catch (error) {
-        throw new ApiError(500, error?.message 
-            || "Something went wrong while fetching requests");
+    if(userInstituteRequests.length === 0) {
+        return res
+        .status(200)
+        .json(new ApiResponse(
+            200, {}, "No pending requests"
+        ));
     }
+    return res
+    .status(200)
+    .json(new ApiResponse(
+        200, userInstituteRequests, "Institute requests fetched."
+    ));
+
 })
 
 const updateInstituteUserRequest = asyncHandler( async (req, res) => {
-    const { requestId, instituteStatus } = req.body;
     const emp = req.emp;
+    const { requestId, instituteStatus } = req.body;
     const statusOptions = ["ACCEPT", "REJECT"]
 
     if(!instituteStatus 
         || !statusOptions.includes(instituteStatus)) {
         throw new ApiError(400, "instituteStatus invalid");
     }
-    if(!requestId || !emp) {
-        throw new ApiError(400, "RequestId and employee are required.");
+    if(!requestId) {
+        throw new ApiError(400, "RequestId id required.");
     }
 
-    try {
-        //HACK: create service
-        const request = await UserInstituteRequest.findById(requestId);
-        if(!request) {
-            throw new ApiError(404, "Request not found.");
-        }
-        console.log(request.institute._id, emp.institute);
-        if(!request.institute.equals(emp.institute)) {
-            throw new ApiError(409, "Employee login and institute request does not match");
-        }
+    const request = await InstituteRequestService.getById(requestId);
+    if(!request) {
+        throw new ApiError(404, "Request not found.");
+    }
+    if(!request.institute.equals(emp.institute)) {
+        throw new ApiError(409, "Employee login and institute request does not match");
+    }
+    if(!verifyInstituteRequestPermission(emp, request.roleType)) {
+        throw new ApiError(
+            403, 
+            "Not sufficient permissions to perform action."
+        );
+    }
+    if(request.instituteStatus === instituteStatus) {
+        throw new ApiError(400, "Updated instituteStatus same as current userStatus");
+    }
 
-        request.instituteStatus = instituteStatus;
+    request.instituteStatus = instituteStatus;
 
-        if(request.userStatus === "REJECT") {
-            res.status(200).json(new ApiResponse(200, {}, "Request cancelled.")) ;
-        }
-        else if(request.userStatus === "ACCEPT" && request.instituteStatus === "ACCEPT" ) {
-            // HACK: SERVICE Admission of student or employee
-            const existedUser = await User.findById(request.user);
-            if(!existedUser) {
-                throw new ApiError(404, "User Not Found");
-            }
+    if(request.instituteStatus === "REJECT") {
+        res.status(200).json(new ApiResponse(200, {}, "Request cancelled.")) ;
+    }
+    else if(request.userStatus === "ACCEPT" && request.instituteStatus === "ACCEPT" ) {
+        handleAcceptedRequest(request);
+        res.status(200).json(new ApiResponse( 200, requestConf, "Request accepted"));
+    }
 
-            let requestConf;
-            if(request.roleType === "STUDENT") {
-                requestConf = createAdmission(request.user, request.institute);
-            }
-            else {
-                const emp = await Employee.findOne(
-                    {
-                        user:user._id, 
-                        institute:institute._id
-                    }
-                );
-                if (!emp) {
-                    requestConf = createEmp(user._id, institute._id, request.roleType);
-                } else {
-                    requestConf = updateEmp(user._id, institute._id, request.roleType);
-                }
-            }
 
-            res.status(200).json(new ApiResponse( 200, requestConf, "Request accepted"));
-
-            const deletedRequest = await UserInstituteRequest.findByIdAndDelete(request._id);
-            
-            if(!deletedRequest) {
-                throw new ApiError(500, "Error while request deletion");
-            }
-        }
-    } catch (error) {
-        throw new ApiError(500, error?.message || "Error while updating request", error?.stack)
+    const deletedRequest = await InstituteRequestService.deleteRequest(request._id);
+    if(!deletedRequest) {
+        throw new ApiError(500, "Error while request deletion");
     }
 
     return res;
