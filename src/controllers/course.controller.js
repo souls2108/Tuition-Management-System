@@ -12,6 +12,8 @@ const verifyHandleCoursePermission = async (loggedInEmp, courseId) => {
     if(!loggedInEmp || permission.includes(loggedInEmp)) {
         throw new ApiError(403, "Not sufficient permission to perform action");
     }
+
+    if(!courseId) return;
     
     const course = await Course.findById(courseId);
     if(!course) {
@@ -29,22 +31,23 @@ const getAllCourses = asyncHandler( async (req, res) => {
     if(!instituteId) {
         throw new ApiError(400, "instituteId field is required");
     }
-    if(!await InstituteService.getById(instituteId)) {
-        throw new ApiError(404, "institute Not Found");
-    }
 
+    const query = {institute: instituteId};
+    if(isActive) {
+        query.isActive = true
+    }
     const courses = await Course.find(
-        {institute: instituteId, isActive: isActive || false}, 
+        query
     );
     if(!courses.length) {
         return res.status(200).json(new ApiResponse(200, {}, "No courses for institute."));
     }
-    return res.status(200).json(new ApiResponse(200, { courseCount: courses.length, courses }, "No courses for institute."));
+    return res.status(200).json(new ApiResponse(200, { courseCount: courses.length, courses }, "Courses fetched for institute."));
 });
 
 const createCourse = asyncHandler(async (req, res) => {
     
-    verifyHandleCoursePermission(req.emp);
+    await verifyHandleCoursePermission(emp);
 
     const { instituteId } = req.params || req.body;
     const {subject, grade, isActive, description} = req.body;
@@ -78,7 +81,7 @@ const updateCourse = asyncHandler(async (req, res) => {
         throw new ApiError(400, "subject and grade are required");
     }
     
-    verifyHandleCoursePermission(req.emp, courseId);
+    await verifyHandleCoursePermission(req.emp, courseId);
 
 
     const course = await Course.findByIdAndUpdate(
@@ -101,7 +104,7 @@ const deleteCourse = asyncHandler(async (req, res) => {
 
     const {courseId} = req.body;
 
-    verifyHandleCoursePermission(req.emp, courseId);
+    await verifyHandleCoursePermission(req.emp, courseId);
 
     await Course.findByIdAndDelete(courseId);
 

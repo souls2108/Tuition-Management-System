@@ -18,10 +18,14 @@ const sessionSchema = new Schema(
             type: Number,
             required: true
         },
+        isActive: {
+            type: Boolean,
+            default: true,
+        },
         instructor: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "User"
-        }
+        },
     },
     {
         timestamps: true,
