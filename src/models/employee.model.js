@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { Schema } from "mongoose";
-import jwt from "jsonwebtoken";
+import aggregatePaginate from "mongoose-aggregate-paginate-v2";
 
 const employeeSchema = new Schema(
     {
@@ -21,6 +21,8 @@ const employeeSchema = new Schema(
         }
     }
 );
+
+employeeSchema.plugin(aggregatePaginate);
 
 // employeeSchema.methods.generateToken = function () {
 //     return jwt.sign(

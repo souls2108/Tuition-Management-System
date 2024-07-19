@@ -18,7 +18,20 @@ const verifyEmployeeRemovePermission = (loggedInEmp, removeEmp) => {
     return false;
 }
 
+const getInstituteEmployees = asyncHandler( async (req, res) => {
+    const { page, limit } = req.body
+    const instituteId = req.emp?.institute;
+    if (!instituteId) {
+        throw new ApiError(400, "instituteId feild is required");
+    }
+    const employees = await EmployeeServices.getByInstitute(instituteId, page || 1, limit || 10);
 
+    if(!employees.length) {
+        throw new ApiError(404, "Institute not found");
+    }
+
+    return res.status(200).json(new ApiResponse(200, {institute: instituteId, employees}, "Institute employees fetched"));
+})
 
 const removeEmployee = asyncHandler( async (req, res) => {
     const { removeEmpId } = req.body;
@@ -46,6 +59,7 @@ const removeEmployee = asyncHandler( async (req, res) => {
 
 export {
     removeEmployee,
+    getInstituteEmployees,
 }
 
 // /**

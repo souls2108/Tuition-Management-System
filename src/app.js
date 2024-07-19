@@ -24,6 +24,6 @@ import employeeRouter from "./routes/employee.routes.js"
 app.use("/api/users", userRouter);
 app.use("/api/institute", instituteRouter);
 app.use("/api/r", userInstituteRequestRouter);
-app.use("/api/i", employeeRouter)
+app.use("/api/e", employeeRouter)
 
 export { app };

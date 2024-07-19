@@ -13,14 +13,48 @@ const getById = async (empId) => {
     return emp;
 }
 
-const getUser = async (userId) => {
+const getByUser = async (userId) => {
     const emps = await Employee.find({user: userId});
     return emps;
 }
 
-const getInstitute = async (instituteId) => {
-    const emps = await Employee.find({institute: instituteId});
-    return emps;    
+const getByInstitute = async (instituteId, page, limit) => {
+    const options = {page, limit}
+    const aggregate = Employee.aggregate(
+        [
+            {
+                $match: {
+                    institute: instituteId
+                },
+            },
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "user",
+                    foreignField: "_id",
+                    as: "user",
+                },
+            },
+            {
+                $unwind: '$user'
+            },
+            {
+                $project: {
+                    _id: 0,
+                    empId: '$_id',
+                    displayName: '$user.displayName',
+                    email: '$user.email',
+                    role: 1,
+                }
+            }
+        ]
+    )
+
+    const employees = await Employee.aggregatePaginate(
+        aggregate,
+        options
+    )
+    return employees.docs;    
 }
 
 const create = async (userId, instituteId, role) => {
@@ -59,8 +93,8 @@ const EmployeeServices = {
     get,
     getById,
     getInstituteOwner,
-    getUser,
-    getInstitute,
+    getByUser,
+    getByInstitute,
     create,
     update,
     removeEmp,

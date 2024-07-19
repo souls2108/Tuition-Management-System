@@ -6,12 +6,10 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 export const verifyEmp = asyncHandler(async (req, _, next) => {
     const instituteId = req.params.instituteId || req.body.instituteId;
     const userId = req.user?._id;
-
-    if(!userId || !instituteId?.trim() === "" ) {
+    if(!userId || !instituteId ) {
         throw new ApiError(400, "InstituteId and userId are required.");
     }
     try {    
-        console.log(userId, instituteId);
         const emp = await Employee.findOne({ $and: {user:userId, institute:instituteId}});
 
         if(!emp) {
