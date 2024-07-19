@@ -6,22 +6,22 @@ const courseSchema = new Schema(
             type: String,
             required: true,            
         },
-        class: {
+        grade: {
             type: String,
-            required: true
+            required: true,
         },
-        offeredBy: {
+        institute: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "Institute"
+            ref: "Institute",
+            required: true,
         },
-        visible: {
-            type: String,
-            enum: ["PUBLIC", "PRIVATE"],
-            default: "PUBLIC",
+        isActive: {
+            type: Boolean,
+            default: true,
         },
         description: {
             type: String,
-            default: "_",
+            default: "",
             maxLength: 40,
         }
     },

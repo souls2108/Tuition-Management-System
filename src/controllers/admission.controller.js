@@ -3,7 +3,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
-const verifyStudentRemovePermission = (loggedInEmp, student) => {
+const verifyStudentRemovePermission = (loggedInEmp) => {
     //XXX: Move to constants as removal permission
     const permissions = ["OWNER", "ADMIN", "TEACHER"]
     return permissions.includes(loggedInEmp.role);
@@ -26,7 +26,7 @@ const removeStudentByEmp = asyncHandler(async (req, res) => {
     if(student.institute !== emp.institute) {
         throw new ApiError(409, "Student does not belong to institute")
     }
-    if(!verifyStudentRemovePermission) {
+    if(!verifyStudentRemovePermission(emp)) {
         throw new ApiError(403, "Not sufficient permissions to perform action.");
     }
 

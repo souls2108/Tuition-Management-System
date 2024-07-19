@@ -12,7 +12,7 @@ import {
 
 const router = Router();
 
-// TEST: REQUEST ROUTE
+// TEST: STUDENT ADMISSION ROUTE
 router
     .route("/request")
         .get(verifyJWT, getUserInstituteRequests)
@@ -27,6 +27,3 @@ router
         .patch(verifyJWT, verifyEmp, updateInstituteUserRequest)
 
 export default router;
-
-// TODO: CREATE COURSE
-// TODO: CREATE SESSION

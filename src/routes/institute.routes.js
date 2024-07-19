@@ -12,17 +12,13 @@ const router = Router();
 
 router.use(verifyJWT);
 
-//  HANDLE INSTITUE
-// CREATE INSTITUTE
+
 router.route("/create-institute").post(createInstitute);
-// GET INSTITUTE
 router.route("/i/all").get( getAllInstitute);
 router.route("/i/name").get( getInstituteByName)
 router.route("/i/:instituteId").get( getInstitute)
-
-// TODO: INSTITUTE EMP REQUEST 
-
-// TODO: INSTITUTE STUDENT REQUEST
+//TODO: update institute
+//TODO: delete institute
 
 
 
@@ -33,17 +29,9 @@ router.route("/i/:instituteId").get( getInstitute)
 
 //  HANDLE EMP
 // 
-//      EMP EMP OP
-// TODO: GET EMP REQUEST LIST
-// TODO: UPDATE EMP REQUEST
-// TODO: REMOVE EMPLOYEE
-// 
 //      EMP STUDENT OP
-// TODO: GET STUDENT ADMISSION REQUEST LIST
-// TODO: UPDATE STUDENT REQUEST
+
 // TODO: REMOVE STUDENT {FLAG IGNORE PENDING ORDERS} 
-// TODO: GET STUDENT ENROLL REQUEST LIST
-// TODO: UPDATE STUDENT REQUEST
 //      EMP COURSE OP
 // TODO: CRUD
 //      EMP SESSION OP
