@@ -1,5 +1,62 @@
-import { Admission } from "../models/admission.model.js";
+import { AdmissionService } from "../db/services/admission.service.js";
 import { ApiError } from "../utils/ApiError.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
+
+const verifyStudentRemovePermission = (loggedInEmp, student) => {
+    //XXX: Move to constants as removal permission
+    const permissions = ["OWNER", "ADMIN", "TEACHER"]
+    return permissions.includes(loggedInEmp.role);
+}
+
+const removeStudentByEmp = asyncHandler(async (req, res) => {
+    const emp = req.emp;
+    const { admissionId, forceRemoveStudent} = req.body;
+    if(!emp) {
+        throw new ApiError(401, "Employee must be logged in");
+    }
+    if(!admissionId) {
+        throw new ApiError(400, "admissionId is required.");
+    }
+
+    const student = await AdmissionService.getById(admissionId);
+    if(!student) {
+        throw new ApiError(404, "Student does not exist");
+    }
+    if(student.institute !== emp.institute) {
+        throw new ApiError(409, "Student does not belong to institute")
+    }
+    if(!verifyStudentRemovePermission) {
+        throw new ApiError(403, "Not sufficient permissions to perform action.");
+    }
+
+    if(!forceRemoveStudent) {
+        //TODO: Check for pending orders at institue SERVICE
+        throw new ApiError(409, "Student has pending orders at Institute");
+    }
+    //TODO: Service to remove Orders, make enrollments inactive
+    const deletedAdmission = await AdmissionService.deleteById(admissionId);
+    return res.status(200)
+    .json(
+        new ApiResponse(
+            200,
+            {
+                user: deletedAdmission.user,
+                institute: deletedAdmission.institute
+            },
+            "Student removed"
+        )
+    )
+})
+
+//TODO: removeStudentBySelf
+
+
+
+
+export {
+    removeStudentByEmp,
+}
 
 // XXX : Remove file
 const createAdmission = async (userId, instituteId)=>{
@@ -96,6 +153,3 @@ const getInstituteAdmissions = async (instituteId) => {
 }
 
 
-
-export {
-}

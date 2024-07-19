@@ -11,16 +11,17 @@ export const verifyEmp = asyncHandler(async (req, _, next) => {
         throw new ApiError(400, "InstituteId and userId are required.");
     }
     try {    
-        const emp = await Employee.findOne({ user:userId, institute:instituteId});
+        console.log(userId, instituteId);
+        const emp = await Employee.findOne({ $and: {user:userId, institute:instituteId}});
 
         if(!emp) {
-            throw new ApiError(401, "Employee not registered to Institute.");
+            throw new ApiError(403, "Employee not registered to Institute.");
         }
-    
+
         req.emp = emp;
         next();
     } catch (error) {
-        throw new ApiError(500, error?.message 
+        throw new ApiError(error.statusCode || 500, error?.message 
             || "Error while employee login");
     }
 })

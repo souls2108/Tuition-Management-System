@@ -28,7 +28,7 @@ const existedRequestEmployeeStudent = async( userId, instituteId, roleType) => {
 }
 
 const handleAcceptedRequest = async ( request) => {
-    const user = await UserService.getUserById( request.user);
+    const user = await UserService.getById( request.user);
     const institute = await InstituteService.getById( request.institute);
     if(!user) {
         throw new ApiError(404, "User Not Found");
@@ -45,7 +45,7 @@ const handleAcceptedRequest = async ( request) => {
         );
     }
     else {
-        if(roleType === "OWNER") {
+        if(request.roleType === "OWNER") {
             const prevOwner = await EmployeeServices.getInstituteOwner(institute._id);
             await EmployeeServices.update(prevOwner._id, "ADMIN");
         }
@@ -55,8 +55,8 @@ const handleAcceptedRequest = async ( request) => {
         );
         if (!existedEmp) {
             requestConfirmation = await EmployeeServices.create(
-                request.userId,
-                request.institute,
+                user._id,
+                institute._id,
                 request.roleType
             );
         } else {
@@ -86,17 +86,18 @@ const createUserInstituteRequest = asyncHandler( async (req, res) => {
     if(!institute) {
         throw new ApiError(404, "Institute Not Found");
     }
-
+    //FIXME: OWNER CANNOT REQUEST HIMSELF TO BE ADMIN 
     await existedRequestEmployeeStudent(userId, instituteId, roleType);
     try {    
         const userRequest = await InstituteRequestService.create(
             userId,
             instituteId,
             roleType,
-            userStatus = "ACCEPT",
+            {userStatus: "ACCEPT"},
         );
 
-        return res.status(201)
+        return res
+        .status(201)
         .json(
             201,
             new ApiResponse(
@@ -121,7 +122,7 @@ const getUserInstituteRequests = asyncHandler( async (req, res) => {
         if(userInstituteRequests.length === 0) {
             return res
             .status(200)
-            .json(new ApiResponse(200, {}, "No pending requests"));
+            .json(new ApiResponse(200, {}, "No pending requests for User"));
         }
 
         return res
@@ -142,15 +143,18 @@ const updateUserInstituteRequest = asyncHandler( async (req, res) => {
         || !statusOptions.includes(userStatus)) {
         throw new ApiError(400, "UserStatus invalid");
     }
-    if(!requestId || !user) {
-        throw new ApiError(400, "RequestId and user are required.");
+    if(!requestId) {
+        throw new ApiError(400, "RequestId is required.");
+    }
+    if(!user) {
+        throw new ApiError(401, "user must be logged in")
     }
 
     const request = await InstituteRequestService.getById(requestId);
     if(!request) {
         throw new ApiError(404, "Request not found.");
     }
-    if(request.user != user._id) {
+    if(!request.user.equals(user._id)) {
         throw new ApiError(409, "User login and user request does not match");
     }
     if(request.userStatus === userStatus) {
@@ -194,15 +198,15 @@ const verifyInstituteRequestPermission = (emp, roleType = "") => {
 }
 
 const createInstituteUserRequest = asyncHandler( async (req, res) => {
+    const { addUserId, roleType } = req.body;
+    if(!addUserId || !roleType) {
+        throw new ApiError(400, "addUserId, roleType field are required.");
+    }
     const emp = req.emp;
     if(!verifyInstituteRequestPermission(emp, roleType)) {
         throw new ApiError(403, "Not sufficient permissions to perform action.");
     }
     
-    const { addUserId, roleType } = req.body;
-    if(!addUserId || !roleType) {
-        throw new ApiError(400, "addUserId, roleType field are required.");
-    }
 
     const existedUser = await UserService.getById(addUserId);
     if(!existedUser) {
@@ -215,12 +219,11 @@ const createInstituteUserRequest = asyncHandler( async (req, res) => {
         addUserId,
         emp.institute,
         roleType,
-        instituteStatus = "ACCEPT",
+        {instituteStatus: "ACCEPT"},
     );
 
     return res.status(201)
     .json(
-        201,
         new ApiResponse(
             201, 
             instituteRequest,
@@ -246,7 +249,7 @@ const getInstituteUserRequests = asyncHandler( async (req, res) => {
         return res
         .status(200)
         .json(new ApiResponse(
-            200, {}, "No pending requests"
+            200, {}, "No pending requests for Institute"
         ));
     }
     return res
@@ -293,8 +296,8 @@ const updateInstituteUserRequest = asyncHandler( async (req, res) => {
         res.status(200).json(new ApiResponse(200, {}, "Request cancelled.")) ;
     }
     else if(request.userStatus === "ACCEPT" && request.instituteStatus === "ACCEPT" ) {
-        handleAcceptedRequest(request);
-        res.status(200).json(new ApiResponse( 200, requestConf, "Request accepted"));
+        const requestConfirmation = await handleAcceptedRequest(request);
+        res.status(200).json(new ApiResponse( 200, requestConfirmation, "Request accepted"));
     }
 
 

@@ -5,6 +5,6 @@ import { verifyEmp } from "../middlewares/employeeVerify.middleware.js";
 
 const router = Router();
 
-router.route("/i/:instituteId/remove-emp").delete(verifyJWT, verifyEmp, removeEmployee)
+router.route("/:instituteId/remove-emp").delete(verifyJWT, verifyEmp, removeEmployee)
 
 export default router;

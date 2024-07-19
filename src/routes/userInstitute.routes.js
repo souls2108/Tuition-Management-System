@@ -11,21 +11,20 @@ import {
  } from "../controllers/userInstituteRequest.controller.js";
 
 const router = Router();
-router.use(verifyJWT);
 
 // TEST: REQUEST ROUTE
 router
     .route("/request")
-        .get(getUserInstituteRequests)
-        .post(createUserInstituteRequest)
-        .patch(updateUserInstituteRequest)
+        .get(verifyJWT, getUserInstituteRequests)
+        .post(verifyJWT, createUserInstituteRequest)
+        .patch(verifyJWT, updateUserInstituteRequest)
 
 // emp only routes
 router
     .route("/:instituteId/request")
-        .get(verifyEmp, getInstituteUserRequests)
-        .post(verifyEmp, createInstituteUserRequest)
-        .patch(verifyEmp, updateInstituteUserRequest)
+        .get(verifyJWT, verifyEmp, getInstituteUserRequests)
+        .post(verifyJWT, verifyEmp, createInstituteUserRequest)
+        .patch(verifyJWT, verifyEmp, updateInstituteUserRequest)
 
 export default router;
 

@@ -1,4 +1,4 @@
-import { Employee } from "../../models/employee.model";
+import { Employee } from "../../models/employee.model.js";
 
 
 const get = async (userId, instituteId) => {
@@ -27,7 +27,7 @@ const create = async (userId, instituteId, role) => {
     const emp = await Employee.create(
         {
             user: userId,
-            instituteId: instituteId,
+            institute: instituteId,
             role: role,
         }
     );

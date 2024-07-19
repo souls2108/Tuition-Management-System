@@ -1,4 +1,4 @@
-import { Admission } from "../../models/admission.model";
+import { Admission } from "../../models/admission.model.js";
 
 
 

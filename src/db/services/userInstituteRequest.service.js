@@ -25,7 +25,7 @@ const getInstitute = async (instituteId) => {
 }
 
 const create = async (userId, instituteId, roleType,
-    userStatus = "PENDING", instituteStatus = "PENDING") => {
+    {userStatus = "PENDING", instituteStatus = "PENDING"}) => {
         const request = await UserInstituteRequest.create({
             user: userId,
             institute: instituteId,

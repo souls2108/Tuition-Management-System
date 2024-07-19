@@ -12,10 +12,11 @@ const createInstitute = asyncHandler( async (req, res) => {
         throw new ApiError(400, "Institute name field cannot be empty.");
     }
     if(!user) {
-        throw new ApiError(400, "User must be logged in.");
+        throw new ApiError(401, "User must be logged in.");
     }
 
     try {
+        //XXX: Use service
         const existedInstitute = await Institute.findOne({
             instituteName
         });

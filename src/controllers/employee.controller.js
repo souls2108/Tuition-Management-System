@@ -6,8 +6,8 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 const verifyEmployeeRemovePermission = (loggedInEmp, removeEmp) => {
     //XXX: Move to constants as removal permission
     const permissions = {
-        "OWNER": [ "ADMIN", "TEACHER", "STUDENT"],
-        "ADMIN": [ "TEACHER", "STUDENT"],
+        "OWNER": [ "ADMIN", "TEACHER"],
+        "ADMIN": [ "TEACHER"],
     }
     if(loggedInEmp._id === removeEmp._id) return true;
     //XXX: test shorthand condition
@@ -18,6 +18,8 @@ const verifyEmployeeRemovePermission = (loggedInEmp, removeEmp) => {
     return false;
 }
 
+
+
 const removeEmployee = asyncHandler( async (req, res) => {
     const { removeEmpId } = req.body;
     const emp = req.emp;
@@ -26,7 +28,7 @@ const removeEmployee = asyncHandler( async (req, res) => {
     if(!removeEmp) {
         throw new ApiError(404, "Employee not found.");
     }
-    if(removeEmp.institute !== emp.institute) {
+    if(!removeEmp.institute.equals( emp.institute)) {
         throw new ApiError(409, "Employee does not belong to institute.");
     }
     if(!verifyEmployeeRemovePermission(emp, removeEmp)) {

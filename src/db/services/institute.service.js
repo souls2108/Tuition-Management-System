@@ -1,4 +1,4 @@
-import { Institute } from "../../models/institute.model";
+import { Institute } from "../../models/institute.model.js";
 
 
 const getById = async (instituteId) => {

@@ -1,12 +1,12 @@
-import { User } from "../../models/user.model";
+import { User } from "../../models/user.model.js";
 
-const getUserById = async (userId) => {
+const getById = async (userId) => {
     const user = await User.findById(userId, {password: 0, refreshToken: 0});
     return user;
 }
 
 const UserService = {
-    getUserById,
+    getById,
 }
 
 export {
