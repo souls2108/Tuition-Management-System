@@ -38,6 +38,5 @@ const examSchema = new Schema(
     }
 );
 
-examSchema.index({ enrollment: 1, examName: 1 }, { unique: true })
 
 export const Exam = mongoose.model("Exam", examSchema);
