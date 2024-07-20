@@ -14,8 +14,24 @@ const get = async (userId, sessionId) => {
     return enrollment;
 }
 
+const getActiveBySessionId = async (sessionId) => {
+    const enrollments = await Enrollment.find(
+        {session: sessionId, isActive: true}
+    );
+    return enrollments;
+}
+
+const getBySessionId = async (sessionId) => {
+    const enrollments = await Enrollment.find(
+        {session: sessionId}
+    );
+    return enrollments;
+}
+
 const EnrollmentService = {
     get,
+    getActiveBySessionId,
+    getBySessionId,
     create,
 }
 

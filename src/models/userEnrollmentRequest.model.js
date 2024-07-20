@@ -34,7 +34,6 @@ const enrollmentRequestSchema = new Schema(
     }
 );
 
-// TODO : Auto delete when { accept / reject }
 
 export const EnrollmentRequest = mongoose.model(
     "EnrollmentRequest", enrollmentRequestSchema

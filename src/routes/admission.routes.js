@@ -5,10 +5,9 @@ import { verifyEmp } from "../middlewares/employeeVerify.middleware.js";
 import { verifyStudent } from "../middlewares/studentVerify.middleware.js";
 
 const router = Router();
-//TODO: admission
-//TEST
 router.route("/:instituteId/all").get( verifyJWT,verifyEmp, getInstituteStudents);
 router.route("/:instituteId/remove-student").delete(verifyJWT, verifyEmp, removeStudentByEmp);
+// TODO: studentLeave
 // router.route("/:instituteId/leave").delete(verifyStudent, studentLeave);
 
 

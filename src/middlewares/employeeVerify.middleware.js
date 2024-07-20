@@ -2,7 +2,6 @@ import { Employee } from "../models/employee.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
-//TEST: EMP M/W
 export const verifyEmp = asyncHandler(async (req, _, next) => {
     const instituteId = req.params.instituteId || req.body.instituteId;
     const userId = req.user?._id;

@@ -12,7 +12,6 @@ import {
 
 const router = Router();
 
-// TEST: STUDENT ADMISSION ROUTE
 router
     .route("/request")
         .get(verifyJWT, getUserInstituteRequests)

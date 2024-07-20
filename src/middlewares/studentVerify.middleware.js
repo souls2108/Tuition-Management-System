@@ -2,7 +2,6 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { AdmissionService } from "../db/services/admission.service.js";
 
-// TEST student middleware
 export const verifyStudent = asyncHandler( async (req, res, next) => {
     const instituteId = req.params.instituteId || req.body.instituteId;
     const userId = req.user._id;

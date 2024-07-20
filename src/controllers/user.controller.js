@@ -48,8 +48,6 @@ const registerUser = asyncHandler( async (req, res) => {
         throw new ApiError(409, "User with credentials already exists.");
     }
 
-    //TODO: Verify email OTP
-    //TODO: Verify phone number OTP
 
     const user = await User.create({
         displayName: displayName,

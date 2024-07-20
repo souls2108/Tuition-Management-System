@@ -5,14 +5,12 @@ import { createSession, deleteSession, getActiveSessions, getCourseSessions, upd
 
 const router = Router();
 router.use(verifyJWT);
-//TEST: SESSION routes
 router
     .route("/:instituteId/session")
         .post(verifyEmp, createSession)
         .get(verifyEmp, getCourseSessions)
         .patch(verifyEmp, updateSession)
         .delete(verifyEmp, deleteSession)
-//FIXME
 router.route("/:instituteId/session/all").get(verifyEmp, getActiveSessions)
 
 export default router;

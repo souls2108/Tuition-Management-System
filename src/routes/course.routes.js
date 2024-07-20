@@ -7,13 +7,12 @@ import { createCourse, deleteCourse, getAllCourses, updateCourse } from "../cont
 const router = Router();
 router.use(verifyJWT);
 
-//TEST: COURSE routes
 router
     .route("/:instituteId/course")
         .post(verifyEmp, createCourse)
         .get(verifyEmp, getAllCourses)
         .patch(verifyEmp, updateCourse)
-        .delete(verifyEmp, deleteCourse) //TEST
+        .delete(verifyEmp, deleteCourse) //TEST: course deletion
 
 router.route("/:instituteId/course-student").get(verifyStudent, getAllCourses)
 

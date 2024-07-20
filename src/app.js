@@ -35,4 +35,5 @@ app.use("/api/a", admissionRouter);
 app.use("/api/enroll-request", enrollRequestRouter);
 app.use("/api/c", courseRouter)
 app.use("/api/s", sessionRouter)
+
 export { app };
