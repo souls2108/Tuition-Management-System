@@ -1,8 +1,9 @@
-import { EmployeeServices } from "../db/services/employee.service";
-import { Session } from "../models/session.model";
-import { ApiError } from "../utils/ApiError";
-import { ApiResponse } from "../utils/ApiResponse";
-import { asyncHandler } from "../utils/asyncHandler";
+import { EmployeeServices } from "../db/services/employee.service.js";
+import { SessionService } from "../db/services/session.service.js";
+import { Session } from "../models/session.model.js";
+import { ApiError } from "../utils/ApiError.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
 
 
 const verifyHandleSessionPermission = async (loggedInEmp, sessionId) => {
@@ -14,26 +15,8 @@ const verifyHandleSessionPermission = async (loggedInEmp, sessionId) => {
 
     if(!sessionId) return;
     
-    const session = await Session.aggregate(
-        [
-            {
-                $match: {
-                    _id: sessionId
-                }
-            },
-            {
-                $lookup: {
-                    from: "courses",
-                    localField: "course",
-                    foreignField: "_id",
-                    as: "course"
-                }
-            },
-            {
-                $unwind: "$course"
-            }
-        ]
-    )
+    const session = await SessionService
+        .getSessionAndCourse(sessionId);
     if(!session) {
         throw new ApiError(404, "Course not found");
     }
@@ -43,7 +26,7 @@ const verifyHandleSessionPermission = async (loggedInEmp, sessionId) => {
 }
 
 
-const getAllSessions = asyncHandler( async (req, res) => {
+const getCourseSessions = asyncHandler( async (req, res) => {
     const { courseId, isActive } = req.body;
 
     if(!courseId) {
@@ -51,9 +34,6 @@ const getAllSessions = asyncHandler( async (req, res) => {
     }
 
     const query = {course: courseId};
-    if(isActive) {
-        query.isActive = true
-    }
     const sessions = await Session.find(
         query
     );
@@ -63,6 +43,13 @@ const getAllSessions = asyncHandler( async (req, res) => {
     }
     return res.status(200).json(new ApiResponse(200, { sessions }, "Sessions fetched for course."));
 });
+
+const getActiveSessions = asyncHandler( async (req, res) => {
+    const instituteId = req.params.instituteId || req.body.instituteId;
+    const sessions = await SessionService.getByInstitute(instituteId);
+
+    return res.status(200).json(new ApiResponse(200, {sessions}, "Sessions of institute"));
+})
 
 const createSession = asyncHandler(async (req, res) => {
     await verifyHandleSessionPermission(req.emp);
@@ -136,7 +123,8 @@ const deleteSession =  asyncHandler( async (req, res) => {
 
 export {
     createSession,
-    getAllSessions,
+    getCourseSessions,
     updateSession,
-    deleteSession
+    deleteSession,
+    getActiveSessions
 }

@@ -1,6 +1,6 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
-import { Admission } from "../models/admission.model.js";
+import { AdmissionService } from "../db/services/admission.service.js";
 
 // TEST student middleware
 export const verifyStudent = asyncHandler( async (req, res, next) => {
@@ -12,21 +12,18 @@ export const verifyStudent = asyncHandler( async (req, res, next) => {
     }
     
     try {
-        const student = await Admission.findOne(
-            {
-                user: userId,
-                institute: instituteId,
-            }
+        const student = await AdmissionService.get(
+            userId, instituteId
         );
 
         if (!student) {
-            throw new ApiError(404, "Student registration for institute not found");
+            throw new ApiError(401, "Student not registered to institute.");
         }
 
-        res.student = student;
+        req.student = student;
         next();
-    } catch {
-        throw new ApiError(500, error?.message 
+    } catch (error) {
+        throw new ApiError(error.statusCode || 500, error?.message 
             || "Error while student login");
     }
 

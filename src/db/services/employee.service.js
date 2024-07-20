@@ -42,6 +42,7 @@ const getByInstitute = async (instituteId, page, limit) => {
                 $project: {
                     _id: 0,
                     empId: '$_id',
+                    userId: '$user._id',
                     displayName: '$user.displayName',
                     email: '$user.email',
                     role: 1,

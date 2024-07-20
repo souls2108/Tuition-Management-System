@@ -1,4 +1,6 @@
 import mongoose from "mongoose";
+import { Schema } from "mongoose";
+
 
 const enrollmentSchema = new Schema(
     {
@@ -12,19 +14,10 @@ const enrollmentSchema = new Schema(
             ref: "User",
             required: true
         },
-        startAt: {
-            type: Date,
-            required: true
-        },
-        endAt: {
-            type: Date,
-        },
-        orders: [
-            {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: "Order",
-            }
-        ],
+        isActive: {
+            type: Boolean,
+            default: true
+        }
     },
     {
         timestamps: true,

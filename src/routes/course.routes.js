@@ -13,7 +13,7 @@ router
         .post(verifyEmp, createCourse)
         .get(verifyEmp, getAllCourses)
         .patch(verifyEmp, updateCourse)
-        .delete(verifyEmp, deleteCourse)
+        .delete(verifyEmp, deleteCourse) //TEST
 
 router.route("/:instituteId/course-student").get(verifyStudent, getAllCourses)
 

@@ -1,7 +1,7 @@
 import mongoose, { Schema } from "mongoose";
 
 
-const userEnrollmentRequestSchema = new Schema(
+const enrollmentRequestSchema = new Schema(
     {
         session: {
             type: mongoose.Schema.Types.ObjectId,
@@ -36,6 +36,6 @@ const userEnrollmentRequestSchema = new Schema(
 
 // TODO : Auto delete when { accept / reject }
 
-export const UserEnrollmentRequest = mongoose.model(
-    "UserEnrollmentRequest", userEnrollmentRequestSchema
+export const EnrollmentRequest = mongoose.model(
+    "EnrollmentRequest", enrollmentRequestSchema
 );

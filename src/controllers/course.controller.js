@@ -27,17 +27,12 @@ const verifyHandleCoursePermission = async (loggedInEmp, courseId) => {
 
 const getAllCourses = asyncHandler( async (req, res) => {
     const { instituteId } = req.params || req.body;
-    const { isActive } = req.body;
     if(!instituteId) {
         throw new ApiError(400, "instituteId field is required");
     }
 
-    const query = {institute: instituteId};
-    if(isActive) {
-        query.isActive = true
-    }
     const courses = await Course.find(
-        query
+        {institute: instituteId}
     );
     if(!courses.length) {
         return res.status(200).json(new ApiResponse(200, {}, "No courses for institute."));
@@ -47,7 +42,7 @@ const getAllCourses = asyncHandler( async (req, res) => {
 
 const createCourse = asyncHandler(async (req, res) => {
     
-    await verifyHandleCoursePermission(emp);
+    await verifyHandleCoursePermission(req.emp);
 
     const { instituteId } = req.params || req.body;
     const {subject, grade, isActive, description} = req.body;

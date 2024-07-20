@@ -24,6 +24,9 @@ const existedRequestEmployeeStudent = async( userId, instituteId, roleType) => {
         if(existedEmp && existedEmp.role === roleType) {
             throw new ApiError(400, "User already employee at institute.");
         }
+        if(existedEmp.role === "OWNER") {
+            throw new ApiError(400, "Owner cannot be requested to change role");
+        }
     }
 }
 
@@ -86,7 +89,7 @@ const createUserInstituteRequest = asyncHandler( async (req, res) => {
     if(!institute) {
         throw new ApiError(404, "Institute Not Found");
     }
-    //FIXME: OWNER CANNOT REQUEST HIMSELF TO BE ADMIN 
+
     await existedRequestEmployeeStudent(userId, instituteId, roleType);
     try {    
         const userRequest = await InstituteRequestService.create(
@@ -99,7 +102,6 @@ const createUserInstituteRequest = asyncHandler( async (req, res) => {
         return res
         .status(201)
         .json(
-            201,
             new ApiResponse(
                 201, 
                 userRequest,
@@ -161,6 +163,7 @@ const updateUserInstituteRequest = asyncHandler( async (req, res) => {
         throw new ApiError(400, "Updated userStatus same as current userStatus");
     }
 
+    request.userStatus = userStatus;
     let requestConfirmation;
     if(request.userStatus === "REJECT") {
         res.status(200).json(new ApiResponse(200, {}, "Request cancelled.")) ;
@@ -186,6 +189,7 @@ const verifyInstituteRequestPermission = (emp, roleType = "") => {
     if(!roleType) {
         return allowedRoles.includes(emp.role);
     }
+    //XXX: move to constants 
     const permissions = {
         "OWNER": ["OWNER", "ADMIN", "TEACHER", "STUDENT"],
         "ADMIN": ["ADMIN", "TEACHER", "STUDENT"],
@@ -270,7 +274,7 @@ const updateInstituteUserRequest = asyncHandler( async (req, res) => {
         throw new ApiError(400, "instituteStatus invalid");
     }
     if(!requestId) {
-        throw new ApiError(400, "RequestId id required.");
+        throw new ApiError(400, "RequestId is required.");
     }
 
     const request = await InstituteRequestService.getById(requestId);
@@ -287,7 +291,7 @@ const updateInstituteUserRequest = asyncHandler( async (req, res) => {
         );
     }
     if(request.instituteStatus === instituteStatus) {
-        throw new ApiError(400, "Updated instituteStatus same as current userStatus");
+        throw new ApiError(400, "Updated instituteStatus same as current instituteStatus");
     }
 
     request.instituteStatus = instituteStatus;

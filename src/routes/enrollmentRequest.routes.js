@@ -15,14 +15,14 @@ const router = Router();
 
 // student only routes
 router
-    .route("/:instituteId/enroll-request")
+    .route("/:instituteId/student")
         .get(verifyJWT, verifyStudent, getStudentEnrollRequests)
         .post(verifyJWT, verifyStudent, createStudentEnrollRequest)
         .patch(verifyJWT, verifyStudent, updateStudentEnrollRequest)
 
 // emp only routes
 router
-    .route("/:instituteId/enroll-request")
+    .route("/:instituteId/institute")
         .get(verifyJWT, verifyEmp, getInstituteEnrollRequests)
         .post(verifyJWT, verifyEmp, createInstituteEnrollRequest)
         .patch(verifyJWT, verifyEmp, updateInstituteEnrollRequest)
