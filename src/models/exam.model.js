@@ -3,38 +3,27 @@ import mongoose, { Schema } from "mongoose";
 
 const examSchema = new Schema(
     {
-        enrollment: {
+        session: {
             type: Schema.Types.ObjectId,
-            ref: "Enrollment",
+            ref: "Session",
             required: true,
         },
         examName: {
             type: String,
             required: true,
         },
+        topics: {
+            type: [String],
+            default: [],
+        },
         time: {
            type: Date,
            required: true, 
-        },
-        marksScored: {
-            type: Number,
-            default: 0,
-            validate: {
-                validator: function() {
-                    return this.marksScored <= this.fullMarks;
-                },
-                message: 'Marks scored should be less or equal to full marks'
-            }
         },
         fullMarks: {
             type: Number,
             required: true,
         },
-        remark: {
-            type: String,
-            default: "",
-            maxLength: 40,
-        }
     }
 );
 
