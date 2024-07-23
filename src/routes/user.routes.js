@@ -17,8 +17,8 @@ const router = Router();
 /**
  * registerUser 
  * login 
- * getUserIdsByName 9
- * getUserProfile:_id 10
+ * getUserIdsByName 
+ * getUserProfile:_id 
  */
 router.route("/register").post(registerUser);
 router.route("/login").post(loginUser);
