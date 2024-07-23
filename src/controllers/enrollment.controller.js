@@ -29,23 +29,29 @@ const getSessionCourseInstitute = async (sessionId) => {
     return institute;
 }
 
-const verifyHandleEnrollPermission = async (loggedInEmp, sessionId) => {
+const verifyHandleEnrollPermission = async (loggedInEmp, enrollId) => {
     //XXX: move constants
     const permission = ["OWNER", "ADMIN", "TEACHER"]
-    if(!loggedInEmp || permission.includes(loggedInEmp)) {
+    if(!loggedInEmp || permission.includes(loggedInEmp.role)) {
         throw new ApiError(403, "Not sufficient permission to perform action");
     }
 
-    if(!sessionId) return;
+    if(!enrollId) return;
+
+    const enrollment = await Enrollment.findById(enrollId);
+    if(!enrollment) {
+        throw new ApiError(404, "Enollment not found");
+    }
     
     const session = await SessionService
-        .getSessionAndCourse(sessionId);
-    if(!session) {
-        throw new ApiError(404, "Course not found");
+        .getSessionAndCourse(enrollment.session);
+    if(!session || !session.course
+        || !session.course.institute.equals(loggedInEmp.institute)
+    ) {
+        throw new ApiError(404, "Session/Course not found");
     }
-    if( !session.course.institute.equals(loggedInEmp.institute)) {
-        throw new ApiError(409, "Course does not belong to institute")
-    };
+
+    return enrollment;
 }
 
 
@@ -56,14 +62,8 @@ const toggleEnrollmentActive = asyncHandler(async (req, res) => {
         throw new ApiError(400, "enrollId is required");
     }
 
-    const enrollment = await Enrollment.findById(enrollId);
-    if(!enrollment) {
-        throw new ApiError(404, "Enollment not found");
-    }
-    const session = await SessionService.getSessionAndCourse(enrollment.session);
-    if(!session || !session.course || !session.course.institute) {
-        throw new ApiError(404, "Session or course not found");
-    }
+    const enrollment = await verifyHandleEnrollPermission(req.emp, enrollId);
+
     if( session.course.institute !== req.emp.institute ) {
         throw new ApiError(409, "Enrollment not of institute")
     }
@@ -82,8 +82,14 @@ const getUserEnrollments = asyncHandler(async (req, res) => {
     return res.status(200).json(new ApiResponse(200, enrollments, "Enrollments fetched"));
 })
 
-const getEnrollmentById = asyncHandler(async (req, res) => {
-    const enrollment = req.enrollment;
+const getEnrollmentDetailsById = asyncHandler(async (req, res) => {
+    let enrollment;
+    if(req.enrollment) {
+        enrollment = req.enrollment;
+    } else {
+        const { enrollId } = req.body;
+        enrollment = await verifyHandleEnrollPermission(req.emp, enrollId);
+    }
     if(!enrollment._id) {
         throw new ApiError(400, "Enrollment is required")
     }
@@ -100,5 +106,5 @@ const getEnrollmentById = asyncHandler(async (req, res) => {
 export {
     toggleEnrollmentActive,
     getUserEnrollments,
-    getEnrollmentById
+    getEnrollmentDetailsById,
 }

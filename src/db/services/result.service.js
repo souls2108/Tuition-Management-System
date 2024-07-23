@@ -61,9 +61,23 @@ const getResultStats = async (examId) => {
     return resultStats[0];
 }
 
+const updateResultScore = async (enrollmentId, examId, score) => {
+    const result = await Result.findOneAndUpdate(
+        {enrollment:enrollmentId, exam: examId},
+        {
+            $set: {
+                marksScored: score,
+            }
+        },
+        {new: 1}
+    );
+    return result;
+}
+
 const ResultService = {
     resultByEnrollId,
     getResultStats,
     createForSession,
+    updateResultScore,
 } 
 export {ResultService};

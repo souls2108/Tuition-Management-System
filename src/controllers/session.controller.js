@@ -314,7 +314,17 @@ const getExamResultStats = asyncHandler( async (req, res) => {
     if(!examId) {
         throw new ApiError(400, "examId is required");
     }
-    await verifyHandleSessionPermission(req.emp, sessionId);
+
+    if(req.emp) {
+        await verifyHandleSessionPermission(req.emp, sessionId);
+    } else if (req.enrollment) {
+        if(req.enrollment.session !== sessionId) {
+            throw new ApiError(403, "Enrollment does not match session")
+        }
+    } else {
+        throw new ApiError(401, "Emp/Student login required");
+    }
+
     const exam = await ExamService.getById(examId);
     if(!exam || !exam.session.equals(sessionId)) {
         throw new ApiError(404, "exam not found");
@@ -324,6 +334,20 @@ const getExamResultStats = asyncHandler( async (req, res) => {
 
     return res.status(200).json(new ApiResponse(200, {resultStats}, "Result stats fetched"))
 })
+
+const updateResultEnrollId = asyncHandler( async (req, res) => {
+    const { enrollId, examId, marksScored } = req.body;
+    if(!enrollId || !examId || !marksScored) {
+        throw new ApiError(400, "enrollId, examId, marksScored are requried.");
+    }
+    const { sessionId } = req.params;
+    await verifyHandleSessionPermission(req.emp, sessionId);
+
+    const result = await ResultService.updateResultScore(enrollId, examId);
+
+    return res.status(200).json(new ApiResponse(200, result, "Result updated"));
+})
+
 
 export {
     createSession,
