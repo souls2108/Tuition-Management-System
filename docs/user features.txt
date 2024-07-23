@@ -1,0 +1,147 @@
+user enroll institute
+    - student
+    - teacher
+    - admin
+user enroll session
+user
+
+user [color: blue]{
+  id string pk
+  displayName string
+  email string
+  phone number
+  password string
+  refreshToken string
+}
+
+institute [color: blue] {
+  id string pk
+  name string
+  creator user_id fk
+}
+
+session [color: blue] {
+  id string pk
+  course_id _id fk
+  startAt timestamp
+  endAt timestamp
+  fees number
+  instructor user_id fk
+}
+
+enrollment [color: green] {
+  id string pk
+  session session_id fk
+  student user_id fk
+  start timestamp
+  end timestamp
+  orders [order]
+}
+
+enrollment.student  - user.id
+enrollment.session - session.id
+
+admission [color: green] {
+  id string pk
+  user user_id fk
+  institute insitute_id fk
+}
+admission.institute - institute.id
+admission.user - user.id
+
+employee [color: green] {
+  id string pk
+  user user_id fk
+  institute insitute_id fk
+  role enum["ADMIN", "STAFF"]
+}
+employee.institute - institute.id
+employee.user - user.id
+
+userInstituteRequest [color: yellow] {
+  user user_id
+  institute institute_id
+  role enum["OWNER", "ADMIN", "TEACHER", "STUDENT"]
+  userStatus enum["ACCEPT", "REJECT","PENDING"]
+  instituteStatus enum["ACCEPT", "REJECT", "PENDING"]
+}
+
+userEnrollmentRequest [color: yellow]{
+  user user_id
+  session session_id
+  userStatus enum["ACCEPT", "REJECT", "PENDING"]
+  instituteStatus enum["ACCEPT", "REJECT", "PENDING"]
+}
+
+userEnrollmentRequest.user - user.id
+userEnrollmentRequest.session - session.id
+
+userInstituteRequest.user - user.id
+userInstituteRequest.institute - institute.id
+
+attendance {
+  enrollment enrollment_id
+  start timestamp
+  duration number
+  status ["PRESENT", "ABSENT", "NA"]
+}
+
+exam {
+  enrollment enrollment_id
+  time date
+  marks_scored number
+  full_marks number
+  remark string
+}
+
+order {
+  id string pk
+  amount number
+  state ["PENDING","CANCELLED", "COMPLETED"]
+  transaction transaction_id
+}
+
+transaction {
+  id string pk
+  from user_id
+  to user_id
+  amount number
+  payment_method enum["CASH", "ONLINE"]
+  state enum["SUCCESS", "FAILED", "PENDING"]
+}
+
+
+//   roles [{institute, role_type}]
+//   parentOf [user_id]
+
+courses {
+  id string pk
+  subject string
+  class number
+  offerred_by institute_id fk
+  visible enum["PUBLIC", "PRIVATE"]
+  description string
+}
+
+
+user.parentOf < user.id
+institute.id < courses.offerred_by
+
+courses.id < session.id
+
+enrollment.orders < order.id
+
+order.transaction - transaction.id
+transaction.from - user.id
+transaction.to - user.id
+
+attendance.enrollment - enrollment.id
+exam.enrollment  - enrollment.id
+
+
+// user.teams <> teams.id
+// workspaces.folderId > folders.id
+// workspaces.teamId > teams.id
+// chat.workspaceId > workspaces.id
+// invite.workspaceId > workspaces.id
+// invite.inviterId > user.id
