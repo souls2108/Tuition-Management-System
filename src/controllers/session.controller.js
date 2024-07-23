@@ -1,6 +1,8 @@
 import { AttendanceService } from "../db/services/attendance.service.js";
 import { EmployeeServices } from "../db/services/employee.service.js";
 import { EnrollmentService } from "../db/services/enrollment.service.js";
+import { ExamService } from "../db/services/exam.service.js";
+import { ResultService } from "../db/services/result.service.js";
 import { SessionService } from "../db/services/session.service.js";
 import { Session } from "../models/session.model.js";
 import { ApiError } from "../utils/ApiError.js";
@@ -203,9 +205,125 @@ const getClassDates = asyncHandler(async (req, res) => {
     return res.status(200).json(new ApiResponse(200, classDates, "Class dates fetched"));
 })
 
-
+//TODO: Add them to routes
 //exam
+const addExam = asyncHandler(async (req, res) => {
+    const { sessionId } = req.params;
+    const { examName, topics, time, fullMarks} = req.body;
+    if(!sessionId) {
+        throw new ApiError(400, "SessionId is required");
+    }
 
+    if(!examName || !fullMarks) {
+        throw new ApiError(400, "examName fullMarks required");
+    }
+
+    await verifyHandleSessionPermission(req.emp, sessionId);
+    try {
+        const exam = await ExamService.create(sessionId, examName, topics, time || Date.now(), fullMarks); 
+        return res.status(201).json(new ApiResponse(201, exam, "Exam created"));
+    } catch (error) {
+        throw new ApiError(error?.statusCode || 500, error?.message || "Something went wrong while creating exam",
+            error, error?.stack);
+    }
+})
+
+const updateExam = asyncHandler(async (req, res) => {
+    const { sessionId } = req.params;
+    const {examId,  examName, topics, time, fullMarks} = req.body;
+    if(!examId || !sessionId) {
+        throw new ApiError(400, "examId, SessionId are required");
+    }
+    await verifyHandleSessionPermission(req.emp, sessionId);
+
+    const oldExam = await ExamService.getById(examId);
+    if(!oldExam || !oldExam.session.equals(sessionId)) {
+        throw new ApiError(404, "exam not found");
+    }
+
+    if(!examName || !fullMarks) {
+        throw new ApiError(400, "examName fullMarks required");
+    }
+
+    try {
+        const exam = await ExamService.update(examId, examName, topics, time, fullMarks);
+        return res.status(200).json(new ApiResponse(200, exam, "Exam updated"));
+    } catch (error) {
+        throw new ApiError(error?.statusCode || 500, error?.message || "Something went wrong while creating exam",
+            error, error?.stack);       
+    }
+})
+
+//result
+const addSessionResult = asyncHandler(async (req, res) => {
+    const { sessionId } = req.params;
+    const {examId, results} = req.body;
+    if(!sessionId || !examId) {
+        throw new ApiError(400, "SessionId, examId is required");
+    }
+
+    await verifyHandleSessionPermission(req.emp, sessionId);
+
+    const exam = await ExamService.getById(examId);
+    if(!exam || !exam.session.equals(sessionId)) {
+        throw new ApiError(404, "exam not found");
+    }
+
+    if(!results || !Array.isArray(results) || results.length === 0) {
+        throw new ApiError(400, "Invalid scores posted.");
+    }
+
+    const invalidResultData = results.findIndex( (result) => {
+        if(!result || !result.enrollment || !result.marksScored 
+            || result.marksScored > exam.fullMarks) {
+            return true
+        }
+    })
+
+    if(invalidResultData !== -1) {
+        throw new ApiError(400, `Invalid data results: ${invalidResultData}`);
+    }
+
+    const enrollmentIds = Set(await EnrollmentService.getActiveIdsBySessionId(sessionId));
+    const activeResults = results
+    .filter((result) => {
+        if (enrollmentIds.has( result.enrollment)) {
+            return true;
+        }
+    })
+    .map( (result) => {
+        return {
+            enrollment: result.enrollment,
+            marksScored: result.marksScored,
+            exam: examId,
+        }
+    })
+    ;
+    try{
+        const createdResults = await ResultService.createForSession(results);
+        return res.status(201).json(201, {createdResults}, "Created results");
+    } catch (error) {
+        throw new ApiError(error?.statusCode || 500, error?.message || "Something went wrong while adding results");
+    }
+
+})
+
+const getExamResultStats = asyncHandler( async (req, res) => {
+    const { sessionId } = req.params;
+    const {examId } = req.body;
+    if(!examId) {
+        throw new ApiError(400, "examId is required");
+    }
+    await verifyHandleSessionPermission(req.emp, sessionId);
+    const exam = await ExamService.getById(examId);
+    if(!exam || !exam.session.equals(sessionId)) {
+        throw new ApiError(404, "exam not found");
+    }
+    
+    const resultStats = await ResultService.getResultStats(examId);
+
+    return res.status(200).json(new ApiResponse(200, {resultStats}, "Result stats fetched"))
+})
 
 export {
     createSession,
