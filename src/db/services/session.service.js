@@ -30,6 +30,11 @@ const getSessionAndCourse = async (sessionId) => {
     return session[0];
 }
 
+const getById = async(sessionId) => {
+    const session = await Session.findById(sessionId);
+    return session;
+}
+
 const getByInstitute = async (instituteId, isActiveOnly) => {
     const sessions = await Course.aggregate([
         {
