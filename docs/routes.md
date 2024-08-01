@@ -1,3 +1,40 @@
+routes/
+    index.js
+    users/
+        user.routes.js
+    userOperations/
+        index.js
+        order.routes.js
+        transaction.routes.js
+        employee.routes.js
+        admission.routes.js
+        enrollment.routes.js
+    institutes/
+        index.js
+        institute.routes.js
+        userInstituteRequest.routes.js
+        instituteOperations/
+            index.js
+            instituteUserRequest.routes.js 
+            employee.routes.js
+            admission.routes.js
+            enrollmentRequest.routes.js
+            course.routes.js
+            session/
+                index.js
+                session.routes.js
+                enrollment.routes.js
+                exam.routes.js
+                attendance.routes.js
+                order.routes.js
+        userOperations/
+            enrollmentRequest.routes.js
+            session.routes.js
+            enrollment/
+                index.js
+                enrollment.routes.js
+
+
 ## /api/users
 - `/register` : displayName, email, phone, password <br>
 - `/login` : [email, phone], password <br>
