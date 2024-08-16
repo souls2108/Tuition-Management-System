@@ -18,6 +18,14 @@ const verifyEmployeeRemovePermission = (loggedInEmp, removeEmp) => {
     return false;
 }
 
+const getUserEmployments = asyncHandler( async(req, res) => {
+    if (!req.user) {
+        throw new ApiError(401, "user must be logged in");
+    }
+    const employees = await EmployeeServices.getByUser(req.user._id);
+    return res.status(200).json(new ApiResponse(200, employees, "user employment fetched"));
+})
+
 const getInstituteEmployees = asyncHandler( async (req, res) => {
     const { page, limit } = req.body
     const instituteId = req.emp?.institute;
@@ -58,8 +66,9 @@ const removeEmployee = asyncHandler( async (req, res) => {
 })
 
 export {
-    removeEmployee,
+    getUserEmployments,
     getInstituteEmployees,
+    removeEmployee,
 }
 
 // /**

@@ -1,4 +1,4 @@
-import { Exam } from "../../models/exam.model"
+import { Exam } from "../../models/exam.model.js"
 
 const getById = async (examId) => {
     const exam = await Exam.findById(examId);

@@ -16,7 +16,6 @@ const createInstitute = asyncHandler( async (req, res) => {
     }
 
     try {
-        //XXX: Use service
         const existedInstitute = await Institute.findOne({
             instituteName
         });

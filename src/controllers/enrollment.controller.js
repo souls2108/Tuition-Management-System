@@ -6,28 +6,7 @@ import { Enrollment } from "../models/enrollment.model.js";
 import { AttendanceService } from "../db/services/attendance.service.js";
 import { ResultService } from "../db/services/result.service.js";
 import { SessionService } from "../db/services/session.service.js";
-import { CourseService } from "../db/services/course.service.js";
-import { InstituteService } from "../db/services/institute.service.js";
 
-//XXX: remove function
-const getSessionCourseInstitute = async (sessionId) => {
-    if(!sessionId) {
-        throw new ApiError(400, "sessionId required");
-    }
-    const session = await SessionService.getById(sessionId);
-    if(!session) {
-        throw new ApiError(404, "Session not found");
-    }
-    session.course = await CourseService.getById(session.course);
-    if(!course) {
-        throw new ApiError(404, "Course not found");
-    }
-    const institute = await InstituteService.getById(session.course.institute);
-    if(!institute) {
-        throw new ApiError(404, "institute not found")
-    }
-    return institute;
-}
 
 const verifyHandleEnrollPermission = async (loggedInEmp, enrollId) => {
     //XXX: move constants
@@ -56,6 +35,14 @@ const verifyHandleEnrollPermission = async (loggedInEmp, enrollId) => {
 
 
 
+const getUserEnrollments = asyncHandler(async (req, res) => {
+    if(!req.user) {
+        throw new ApiError(401, "User not logged in");
+    }
+    const enrollments = await EnrollmentService.getByUserId(req.user._id);
+    return res.status(200).json(new ApiResponse(200, enrollments, "Enrollments fetched"));
+})
+
 const toggleEnrollmentActive = asyncHandler(async (req, res) => {
     const { enrollId } = req.body;
     if(!enrollId) {
@@ -74,27 +61,21 @@ const toggleEnrollmentActive = asyncHandler(async (req, res) => {
     return res.status(200).json(new ApiResponse(200, enrollment, "Enrollment updated"));
 });
 
-const getUserEnrollments = asyncHandler(async (req, res) => {
-    if(!req.user) {
-        throw new ApiError(401, "User not logged in");
-    }
-    const enrollments = await EnrollmentService.getByUserId(req.user._id);
-    return res.status(200).json(new ApiResponse(200, enrollments, "Enrollments fetched"));
-})
-
 const getEnrollmentDetailsById = asyncHandler(async (req, res) => {
     let enrollment;
+    //for user's self enrollent
     if(req.enrollment) {
         enrollment = req.enrollment;
     } else {
+        //employee view enrollment
         const { enrollId } = req.body;
         enrollment = await verifyHandleEnrollPermission(req.emp, enrollId);
     }
     if(!enrollment._id) {
-        throw new ApiError(400, "Enrollment is required")
+        throw new ApiError(400, "Enrollment is required");
     }
     const attendance = await AttendanceService.getByEnrollId(enrollment._id);
-    const exam = await ResultService.getByEnrollId(enrollment._id);
+    const exam = await ResultService.resultByEnrollId(enrollment._id);
 
     return res
     .status(200)

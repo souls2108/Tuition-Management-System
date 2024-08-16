@@ -3,7 +3,7 @@ import {
     getUserInstituteRequests,
     createUserInstituteRequest,
     updateUserInstituteRequest,
- } from "../controllers/userInstituteRequest.controller.js";
+ } from "../../controllers/userInstituteRequest.controller.js";
 
 const router = Router();
 

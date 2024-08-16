@@ -1,9 +1,9 @@
-import { EnrollmentService } from "../db/services/enrollment.service";
-import { ApiError } from "../utils/ApiError";
-import { asyncHandler } from "../utils/asyncHandler";
+import { EnrollmentService } from "../db/services/enrollment.service.js";
+import { ApiError } from "../utils/ApiError.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
 
 
-export const verifyEnroll = asyncHandler(async (req, res) => {
+export const verifyEnroll = asyncHandler(async (req, _, next) => {
     const enrollId = req.params.enrollId || req.body.enrollId;
     const user = req.user;
     if(!user) {

@@ -1,6 +1,5 @@
 import { InstituteService } from "../db/services/institute.service.js";
 import { Course } from "../models/course.model.js";
-import { Employee } from "../models/employee.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
@@ -111,5 +110,5 @@ export {
     createCourse,
     getAllCourses,
     updateCourse,
-    deleteCourse
+    deleteCourse,
 }

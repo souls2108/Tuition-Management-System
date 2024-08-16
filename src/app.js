@@ -16,24 +16,8 @@ app.use(cookieParser());
 
 
 //routes import
-import userRouter from './routes/user.routes.js'
-import instituteRouter from './routes/institute.routes.js';
-import userInstituteRequestRouter from "./routes/userInstitute.routes.js"
-import employeeRouter from "./routes/employee.routes.js"
-import admissionRouter from "./routes/admission.routes.js";
-import enrollRequestRouter from "./routes/enrollmentRequest.routes.js"
-import courseRouter from "./routes/course.routes.js"
-import sessionRouter from "./routes/session.routes.js"
-//routes declaration
-app.use("/api/users", userRouter);
-app.use("/api/institute", instituteRouter);
-app.use("/api/r", userInstituteRequestRouter);
+import router from "./routes/index.js";
 
-//move to institute router
-app.use("/api/e", employeeRouter);
-app.use("/api/a", admissionRouter);
-app.use("/api/enroll-request", enrollRequestRouter);
-app.use("/api/c", courseRouter)
-app.use("/api/s", sessionRouter)
+app.use("/api/v1", router);
 
 export { app };

@@ -12,8 +12,8 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 
 const verifyHandleSessionPermission = async (loggedInEmp, sessionId) => {
     //XXX: move constants
-    const permission = ["OWNER", "ADMIN"]
-    if(!loggedInEmp || permission.includes(loggedInEmp)) {
+    const permission = ["OWNER", "ADMIN", "TEACHER"]
+    if(!loggedInEmp || permission.includes(loggedInEmp.role)) {
         throw new ApiError(403, "Not sufficient permission to perform action");
     }
 
@@ -200,12 +200,11 @@ const getClassDates = asyncHandler(async (req, res) => {
     }
 
     const enrollmentIds = await EnrollmentService.getIdsBySessionId(sessionId);
-    const classDates = await AttendanceService.getByEnrollId(enrollmentIds);
+    const classDates = await AttendanceService.getDatesByEnrollIds(enrollmentIds.map((enrollment) => enrollment._id));
 
     return res.status(200).json(new ApiResponse(200, classDates, "Class dates fetched"));
 })
 
-//TODO: Add them to routes
 //exam
 const addExam = asyncHandler(async (req, res) => {
     const { sessionId } = req.params;
@@ -284,10 +283,11 @@ const addSessionResult = asyncHandler(async (req, res) => {
         throw new ApiError(400, `Invalid data results: ${invalidResultData}`);
     }
 
-    const enrollmentIds = Set(await EnrollmentService.getActiveIdsBySessionId(sessionId));
+    let enrollmentIds = await EnrollmentService.getActiveIdsBySessionId(sessionId);
+    const enrollmentSet =  Set(enrollmentIds.map((enrollment) => enrollment._id));
     const activeResults = results
     .filter((result) => {
-        if (enrollmentIds.has( result.enrollment)) {
+        if (enrollmentSet.has( result.enrollment)) {
             return true;
         }
     })
@@ -300,7 +300,7 @@ const addSessionResult = asyncHandler(async (req, res) => {
     })
     ;
     try{
-        const createdResults = await ResultService.createForSession(results);
+        const createdResults = await ResultService.createForSession(activeResults);
         return res.status(201).json(201, {createdResults}, "Created results");
     } catch (error) {
         throw new ApiError(error?.statusCode || 500, error?.message || "Something went wrong while adding results");
@@ -354,5 +354,13 @@ export {
     getCourseSessions,
     updateSession,
     deleteSession,
-    getActiveSessions
+    getActiveSessions,
+    getSessionEnrollments,
+    addSessionAttendance,
+    getClassDates,
+    addExam,
+    updateExam,
+    addSessionResult,
+    getExamResultStats,
+    updateResultEnrollId,
 }

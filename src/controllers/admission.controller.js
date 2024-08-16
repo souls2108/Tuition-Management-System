@@ -53,6 +53,15 @@ const removeStudentByEmp = asyncHandler(async (req, res) => {
     )
 })
 
+const getUserAdmissions = asyncHandler(async (req, res) => {
+    if (!req.user) {
+        throw new ApiError(401, "user must be logged in");
+    }
+
+    const admissions = await AdmissionService.getByUserId(req.user._id);
+    return res.status(200).json(new ApiResponse(200, {admissions}, "Fetched user admissions"));
+})
+
 //TODO: removeStudentBySelf
 
 const getInstituteStudents = asyncHandler(async (req, res) => {
@@ -80,4 +89,5 @@ const getInstituteStudents = asyncHandler(async (req, res) => {
 export {
     removeStudentByEmp,
     getInstituteStudents,
+    getUserAdmissions,
 }

@@ -17,7 +17,7 @@ const router = Router();
 /**
  * registerUser 
  * login 
- * getUserProfile:_id 
+ * //TODO getUserProfile:_id 
  */
 router.route("/register").post(registerUser);
 router.route("/login").post(loginUser);
@@ -30,10 +30,7 @@ router.route("/login").post(loginUser);
  * current-user 
  * update-account 
  * change-password 
- * delete-user
- * 
- * /createEnrollmentRequest
- * /userEnrollmentRequests
+ * delete-user 
  */
 router.route("/logout").post(verifyJWT, logoutUser);
 router.route("/refresh-token").post(refreshAccessToken);

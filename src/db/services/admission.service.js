@@ -14,6 +14,11 @@ const getById = async (admissionId) => {
     return admission;
 }
 
+const getByUserId = async (userId) => {
+    const admission = await Admission.find({user: userId});
+    return admission;
+}
+
 const getByInstitute = async (instituteId, page, limit) => {
     const options = {page: page || 1, limit: limit || 10}
     const aggregate = Admission.aggregate(
@@ -71,6 +76,7 @@ const deleteById = async (admissionId) => {
 const AdmissionService = {
     get,
     getById,
+    getByUserId,
     getByInstitute,
     create,
     deleteById,

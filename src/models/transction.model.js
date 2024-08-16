@@ -7,9 +7,9 @@ const transactionSchema = new Schema(
             ref: "User",
             required: true
         },
-        toUser: {
+        toInstitute: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "User",
+            ref: "Institute",
             required: true,
         },
         amount: {
@@ -23,7 +23,8 @@ const transactionSchema = new Schema(
         },
         state: {
             type: String,
-            enum: ["SUCCESS", "FAILED", "PENDING"]
+            enum: ["SUCCESS", "FAILED", "PENDING"],
+            required: true,
         },
     },
     {
@@ -31,4 +32,4 @@ const transactionSchema = new Schema(
     }
 );
 
-export const Transaction = mongoose.Model("Transaction", transactionSchema);
+export const Transaction = mongoose.model("Transaction", transactionSchema);

@@ -36,6 +36,7 @@ const getActiveIdsBySessionId = async (sessionId) => {
         {session: sessionId, isActive: true},
         {_id:1}
     );
+    
     return enrollmentIds;
 }
 

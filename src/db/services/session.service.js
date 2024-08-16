@@ -1,14 +1,13 @@
 import { Course } from "../../models/course.model.js";
 import { Session } from "../../models/session.model.js";
-import mongoose from "mongoose";
-
+import Schema from "mongoose";
 
 const getSessionAndCourse = async (sessionId) => {
     const session = await Session.aggregate(
         [
             {
                 $match: {
-                    _id: new mongoose.Types.ObjectId( sessionId),
+                    _id: new Schema.Types.ObjectId( sessionId),
                 },
             },
             {
@@ -48,13 +47,14 @@ const getByInstitute = async (instituteId, isActiveOnly) => {
             }
         }
     ])
-    console.log(sessions);
+
     return sessions;
 }
 
 const SessionService = {
     getSessionAndCourse,
     getByInstitute,
+    getById
 }
 
 export { SessionService }

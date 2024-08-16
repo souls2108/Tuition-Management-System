@@ -1,4 +1,4 @@
-import { Result } from "../../models/result.model"
+import { Result } from "../../models/result.model.js"
 
 
 const resultByEnrollId = async(enrollId) => {

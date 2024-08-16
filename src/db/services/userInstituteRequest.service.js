@@ -20,7 +20,6 @@ const getUser = async (userId) => {
 
 const getInstitute = async (instituteId) => {
     const requests = await UserInstituteRequest.find({institute: instituteId});
-    // IDEA: PAGINATE, PIPELINE TO INSTITUTE DETAILS
     return requests;
 }
 

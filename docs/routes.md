@@ -1,45 +1,52 @@
+todo ->
+    finish routing
+
 routes/
-    index.js
+    index.js #
     users/
         user.routes.js
-    userOperations/
+    user-details/
         index.js
         order.routes.js
-        transaction.routes.js
-        employee.routes.js
+        transactions.routes.js
         admission.routes.js
-        enrollment.routes.js
+        enrollments.routes.js
+        employee.routes.js
     institutes/
-        index.js
+        index.js 
         institute.routes.js
         userInstituteRequest.routes.js
-        instituteOperations/
-            index.js
-            instituteUserRequest.routes.js 
+        institute-ops/
+            index.js 
+            instituteUserRequest.routes.js
             employee.routes.js
             admission.routes.js
             enrollmentRequest.routes.js
             course.routes.js
+            order.routes.js
+            transactions.routes.js
             session/
                 index.js
                 session.routes.js
                 enrollment.routes.js
                 exam.routes.js
+                result.routes.js
                 attendance.routes.js
-                order.routes.js
-        userOperations/
+
+        student-ops/
+            index.js
             enrollmentRequest.routes.js
             session.routes.js
-            enrollment/
-                index.js
-                enrollment.routes.js
+            course.routes.js
+            enrollment.routes.js
+
 
 
 ## /api/users
 - `/register` : displayName, email, phone, password <br>
 - `/login` : [email, phone], password <br>
 - `/logout` : __ <br>
--  `/refresh-token`: refresh accessToken using refreshToken
+- `/refresh-token`: refresh accessToken using refreshToken
 - `/current-user` : user profile <br>
 - `/update-account` : <br>
 - `/change-password` : <br>

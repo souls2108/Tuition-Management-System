@@ -15,7 +15,7 @@ const orderSchema = new Schema(
             type: Number,
             required: true,
         },
-        states: {
+        state: {
             type: String,
             enum: ["PENDING", "COMPLETED"],
             default: "PENDING",
