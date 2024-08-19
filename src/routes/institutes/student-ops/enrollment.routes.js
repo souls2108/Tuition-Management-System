@@ -10,7 +10,7 @@ const router = Router();
 
 router.use(verifyEnroll)
 
-router.route("/").get( getEnrollmentDetailsById);
+router.route("/details").get( getEnrollmentDetailsById);
 router.route("/exam-stats").get( getExamResultStats);
 
 export default router;

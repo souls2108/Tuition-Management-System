@@ -3,7 +3,6 @@ import { addSessionAttendance, getClassDates } from "../../../../controllers/ses
 
 const router = Router();
 
-//TODO: IMP!! Attendance controllers
 router
     .route("/")
         .get(getClassDates)

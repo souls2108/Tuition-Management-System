@@ -51,10 +51,6 @@ const toggleEnrollmentActive = asyncHandler(async (req, res) => {
 
     const enrollment = await verifyHandleEnrollPermission(req.emp, enrollId);
 
-    if( session.course.institute !== req.emp.institute ) {
-        throw new ApiError(409, "Enrollment not of institute")
-    }
-
     enrollment.isActive = (!enrollment.isActive);
     await enrollment.save();
 

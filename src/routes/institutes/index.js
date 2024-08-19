@@ -1,7 +1,7 @@
 import Router from "express";
 import { verifyJWT } from "../../middlewares/auth.middleware.js";
 
-const router = new Router();
+const router = new Router({mergeParams: true});
 
 router.use(verifyJWT);
 
@@ -11,8 +11,8 @@ import instituteOperationsRouter from "./institute-ops/index.js"
 import studentOperationsRouter from "./student-ops/index.js"
 
 router.use("/userInstituteRequest", userInstituteRequestRouter);
-router.use("/institute", instituteRouter);
-router.use("/institute-ops", instituteOperationsRouter);
-router.use("/student-ops", studentOperationsRouter);
+router.use("/i", instituteRouter);
+router.use(":instituteId/institute-ops", instituteOperationsRouter);
+router.use(":instituteId/student-ops", studentOperationsRouter);
 
 export default router;

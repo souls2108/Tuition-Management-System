@@ -5,7 +5,7 @@ const router = Router({mergeParams: true});
 
 router.use(verifyStudent);
 
-import enrollmentRequestRouter from "./enrollment.routes.js";
+import enrollmentRequestRouter from "./enrollmentRequest.routes.js";
 import sessionRouter from "./session.routes.js";
 import courseRouter from "./course.routes.js";
 import enrollmentRouter from "./enrollment.routes.js";

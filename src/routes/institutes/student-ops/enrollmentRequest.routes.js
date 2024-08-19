@@ -11,6 +11,6 @@ router
     .route("/")
         .get(getStudentEnrollRequests)
         .post(createStudentEnrollRequest)
-        .update(updateStudentEnrollRequest);
+        .patch(updateStudentEnrollRequest);
         
 export default router;
