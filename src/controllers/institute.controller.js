@@ -77,7 +77,7 @@ const getInstituteByName = asyncHandler( async (req, res) => {
     const {instituteName} = req.body;
 
     if(!instituteName?.trim()) {
-        throw new ApiError(400, "Institute field cannot be empty.");
+        throw new ApiError(400, "instituteName field cannot be empty.");
     }
 
     const institute = await Institute.findOne({ instituteName });

@@ -50,7 +50,7 @@ routes:
         /update-account
         /change-password
         /delete-user
-    /user-details
+    /user-details           //TEST
         /orders/
             GET
         /transactions/
@@ -61,37 +61,37 @@ routes:
             GET
         /employee/
             GET
-    /institutes
-        /i
+    /institutes             //TEST
+        /i                  
             /create-institute
             /all
             /name
             /:instituteId
-        /userInstituteRequest
+        /userInstituteRequest           //TEST
             GET
             POST
             PATCH    
-        /:instituteId/institute-ops
-            /request
+        /:instituteId/institute-ops           //TEST
+            /request           //TEST
                 GET
                 POST
                 PATCH
-            /employee
+            /employee           //TEST
                 GET
                 DELETE            
-            /admission
+            /admission           //TEST
                 GET
                 DELETE
-            /enroll-request
+            /enroll-request           //TEST
                 GET
                 POST
                 PATCH
-            /course
+            /course           //TEST
                 GET
                 POST
                 PATCH
                 DELETE
-            /session
+            /session           //TEST
                 /
                     GET
                     POST
@@ -99,40 +99,40 @@ routes:
                     DELETE
                 /course
                     GET
-            /orders
+            /orders           //TEST
                 GET
                 POST
                 PATCH
                 DELETE
-            /transactions
+            /transactions           //TEST
                 GET
-            /:sessionId
+            /:sessionId           //TEST
                 /enrollments
                     GET
                     PATCH
-                /exam
+                /exam           //TEST
                     POST
                     PATCH
-                /result
+                /result           //TEST
                     GET
                     POST
                     PATCH
-                /attendance
+                /attendance           //TEST
                     GET
                     POST
 
-        :instituteId/student-ops
-            /enrollment-request
+        :instituteId/student-ops           //TEST
+            /enrollment-request           //TEST
                 /
                     GET
                     POST
                     PATCH
-            /session
+            /session           //TEST
                 /course
                 /active
-            /course
+            /course           //TEST
                 /all
-            /:enrollId
+            /:enrollId           //TEST
                 /details
                 /exam-stats
 
