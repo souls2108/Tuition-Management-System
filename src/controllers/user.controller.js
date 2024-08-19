@@ -65,7 +65,7 @@ const registerUser = asyncHandler( async (req, res) => {
     }
 
     return res.status(201).json(
-        new ApiResponse(200, createdUser, "user registered successfully")
+        new ApiResponse(201, createdUser, "user registered successfully")
     )
 }
 );
@@ -215,7 +215,7 @@ const updateAccountDetails = asyncHandler (async (req, res) => {
     const {displayName, email, phone} = req.body;
 
     if (!displayName || !email || !phone) {
-        throw new ApiError(400, "All fields are required");
+        throw new ApiError(400, "displayName, email, phone are required");
     }
 
     const user = await User.findByIdAndUpdate(
@@ -228,7 +228,7 @@ const updateAccountDetails = asyncHandler (async (req, res) => {
             }
         },
         {new: true}
-    ).select("-password");
+    ).select("-password -refreshToken");
 
     return res
     .status(200)
