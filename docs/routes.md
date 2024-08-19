@@ -41,7 +41,7 @@ routes/
             enrollment.routes.js
 
 routes:
-    users
+    /users
         /register
         /login
         /logout 
@@ -50,7 +50,7 @@ routes:
         /update-account
         /change-password
         /delete-user
-    user-details
+    /user-details
         /orders/
             GET
         /transactions/
@@ -61,7 +61,7 @@ routes:
             GET
         /employee/
             GET
-    institutes
+    /institutes
         /i
             /create-institute
             /all
