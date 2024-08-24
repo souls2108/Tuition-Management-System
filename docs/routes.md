@@ -1,46 +1,3 @@
-routes/
-    index.js #
-    users/
-        user.routes.js
-    user-details/
-        index.js
-        order.routes.js
-        transactions.routes.js
-        admission.routes.js
-        enrollments.routes.js
-        employee.routes.js
-    institutes/
-        index.js 
-        institute.routes.js
-        userInstituteRequest.routes.js
-        institute-ops/
-            index.js 
-            instituteUserRequest.routes.js
-            employee.routes.js
-            admission.routes.js
-            enrollmentRequest.routes.js
-            course.routes.js
-            order.routes.js
-            transactions.routes.js
-            session/
-                index.js
-                session.routes.js
-                enrollment.routes.js
-                exam.routes.js
-                result.routes.js
-                attendance.routes.js
-
-        student-ops/
-            index.js
-            enrollmentRequest.routes.js
-            session.routes.js
-            course.routes.js
-            enrollment.routes.js
-
-todo->
-    Check for pending orders at institue SERVICE
-
-
 routes:
     /users
         /register
@@ -68,7 +25,7 @@ routes:
             /all
             /name
             /:instituteId
-        /userInstituteRequest           //TEST
+        /userInstituteRequest           
             GET
             POST
             PATCH    

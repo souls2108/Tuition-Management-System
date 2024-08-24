@@ -70,7 +70,6 @@ userSchema.methods.isPasswordCorrect = async function(password) {
 }
 
 userSchema.methods.generateAccessToken = function() {
-    //IDEA: get user ip and sign JWT
     return jwt.sign(
         {
             _id: this._id,

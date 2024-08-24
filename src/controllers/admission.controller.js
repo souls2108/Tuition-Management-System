@@ -1,5 +1,6 @@
 import { AdmissionService } from "../db/services/admission.service.js";
 import { InstituteService } from "../db/services/institute.service.js";
+import { OrderService } from "../db/services/order.service.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
@@ -28,23 +29,29 @@ const removeStudentByEmp = asyncHandler(async (req, res) => {
     
     const student = await AdmissionService.getById(admissionId);
     if(!student) {
-        throw new ApiError(404, "Student does not exist");
+        throw new ApiError(404, "Student not found");
     }
     verifyStudentHandlePermission(emp, student);
 
-
-
-    if(!forceRemoveStudent) {
-        //TODO: Check for pending orders at institue SERVICE
-        throw new ApiError(409, "Student has pending orders at Institute");
+    const orders = await OrderService.getByInstituteIdAndUserId(req.emp.institute, student.user, true);
+    let deleteOrders = {};
+    if (orders.length !== 0) {
+        if(Boolean( forceRemoveStudent)) {
+            deleteOrders = await OrderService.deleteMany(orders.map((order) => order._id));
+        } else {
+            throw new ApiError(409, "Student has pending orders at Institute");
+        }        
     }
-    //TODO: Service to remove Orders, make enrollments inactive
+
     const deletedAdmission = await AdmissionService.deleteById(admissionId);
     return res.status(200)
     .json(
         new ApiResponse(
             200,
-            { deletedAdmission },
+            {
+                deletedAdmission,
+                deleteOrders,
+            },
             "Student removed"
         )
     )
