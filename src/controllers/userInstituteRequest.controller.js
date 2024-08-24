@@ -3,10 +3,10 @@ import { EmployeeServices } from "../db/services/employee.service.js";
 import { InstituteService } from "../db/services/institute.service.js";
 import { UserService } from "../db/services/user.service.js";
 import { InstituteRequestService } from "../db/services/userInstituteRequest.service.js";
-
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
+
 
 const existedRequestEmployeeStudent = async( userId, instituteId, roleType) => {   
     const existedRequest = await InstituteRequestService.get(userId, instituteId)
@@ -24,7 +24,7 @@ const existedRequestEmployeeStudent = async( userId, instituteId, roleType) => {
         if(existedEmp && existedEmp.role === roleType) {
             throw new ApiError(400, "User already employee at institute.");
         }
-        if(existedEmp.role === "OWNER") {
+        if(existedEmp && existedEmp.role === "OWNER") {
             throw new ApiError(400, "Owner cannot be requested to change role");
         }
     }
@@ -77,12 +77,15 @@ const createUserInstituteRequest = asyncHandler( async (req, res) => {
     const { instituteId, roleType } = req.body;
     const userId = req.user?._id;
 
-    if (!userId) {
-        throw new ApiError(400, "User id is required.");
-    }
-
     if(!instituteId || !roleType) {
         throw new ApiError(400, "InstituteId and roleType is required.");
+    }
+    //XXX: move to constants
+    if(!["OWNER", "ADMIN", "TEACHER", "STUDENT"].includes(roleType)) {
+        throw new ApiError(400, "roleType invalid");
+    }
+    if(roleType === "OWNER") {
+        throw new ApiError(400, "OWNER role cannot be requested");
     }
 
     const institute = await InstituteService.getById( instituteId);
@@ -143,21 +146,18 @@ const updateUserInstituteRequest = asyncHandler( async (req, res) => {
     
     if(!userStatus 
         || !statusOptions.includes(userStatus)) {
-        throw new ApiError(400, "UserStatus invalid");
+        throw new ApiError(400, "userStatus invalid");
     }
     if(!requestId) {
-        throw new ApiError(400, "RequestId is required.");
+        throw new ApiError(400, "requestId is required.");
     }
     if(!user) {
         throw new ApiError(401, "user must be logged in")
     }
 
     const request = await InstituteRequestService.getById(requestId);
-    if(!request) {
+    if(!request || !request.user.equals(user._id)) {
         throw new ApiError(404, "Request not found.");
-    }
-    if(!request.user.equals(user._id)) {
-        throw new ApiError(409, "User login and user request does not match");
     }
     if(request.userStatus === userStatus) {
         throw new ApiError(400, "Updated userStatus same as current userStatus");
@@ -170,7 +170,7 @@ const updateUserInstituteRequest = asyncHandler( async (req, res) => {
     }
     else if(request.userStatus === "ACCEPT" && request.instituteStatus === "ACCEPT" ) {
         requestConfirmation = await handleAcceptedRequest(request);
-        req.status(200).json(new ApiResponse(200, requestConfirmation, "Request accepted."));
+        res.status(200).json(new ApiResponse(200, requestConfirmation, "Request accepted."));
     }
 
     const deletedRequest = await InstituteRequestService.deleteRequest(request._id);
@@ -183,7 +183,7 @@ const updateUserInstituteRequest = asyncHandler( async (req, res) => {
 
 
 // Institute functions
-const verifyInstituteRequestPermission = (emp, roleType = "") => {
+const verifyInstituteRequestPermission = (emp, roleType) => {
     const allowedRoles = ["OWNER", "ADMIN"];
 
     if(!roleType) {
@@ -194,8 +194,8 @@ const verifyInstituteRequestPermission = (emp, roleType = "") => {
         "OWNER": ["OWNER", "ADMIN", "TEACHER", "STUDENT"],
         "ADMIN": ["ADMIN", "TEACHER", "STUDENT"],
     }
-    //XXX: test shorthand condition
-    if (permissions.hasOwnProperty(emp.role) && permissions[emp.role].includes(roleType)) {
+
+    if (emp.role && permissions[emp.role].includes(roleType)) {
         return true;
     }
     return false;
@@ -209,6 +209,9 @@ const createInstituteUserRequest = asyncHandler( async (req, res) => {
     const emp = req.emp;
     if(!verifyInstituteRequestPermission(emp, roleType)) {
         throw new ApiError(403, "Not sufficient permissions to perform action.");
+    }
+    if(emp.user.equals( addUserId)) {
+        throw new ApiError(400, "User and addUserId cannot be same");
     }
     
 
@@ -239,12 +242,6 @@ const createInstituteUserRequest = asyncHandler( async (req, res) => {
 const getInstituteUserRequests = asyncHandler( async (req, res) => {
     const instituteId = req.emp.institute;
     const emp = req.emp;
-    if( !verifyInstituteRequestPermission(emp)) {
-        throw new ApiError(
-            403, 
-            "Not sufficient permissions to perform action."
-        );
-    }
 
     const userInstituteRequests = await InstituteRequestService
         .getInstitute(instituteId);
@@ -291,6 +288,8 @@ const updateInstituteUserRequest = asyncHandler( async (req, res) => {
         );
     }
     if(request.instituteStatus === instituteStatus) {
+        console.log(request);
+        
         throw new ApiError(400, "Updated instituteStatus same as current instituteStatus");
     }
 

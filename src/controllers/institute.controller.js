@@ -39,7 +39,7 @@ const createInstitute = asyncHandler( async (req, res) => {
         .json( new ApiResponse(201, {institute, emp}, "Institue created."))
         
     } catch (error) {
-        throw new ApiError(500, error?.message 
+        throw new ApiError(error?.statusCode || 500, error?.message 
             || "Error while creating DB entry.")
     }
 });

@@ -8,8 +8,8 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 
 const verifyHandleSessionPermission = async (loggedInEmp, sessionId) => {
     //XXX: move constants
-    const permission = ["OWNER", "ADMIN", "TEACHER"]
-    if(!loggedInEmp || permission.includes(loggedInEmp.role)) {
+    const permission = ["OWNER", "ADMIN", "TEACHER"];
+    if(!loggedInEmp || !permission.includes(loggedInEmp.role)) {
         throw new ApiError(403, "Not sufficient permission to perform action");
     }
 

@@ -69,7 +69,7 @@ const create = async(userId, instituteId) => {
 }
 
 const deleteById = async (admissionId) => {
-    const deletedAdmission = await Admission.findById(admissionId);
+    const deletedAdmission = await Admission.findByIdAndDelete(admissionId);
     return deletedAdmission;
 }
 

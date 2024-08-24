@@ -12,7 +12,7 @@ import studentOperationsRouter from "./student-ops/index.js"
 
 router.use("/userInstituteRequest", userInstituteRequestRouter);
 router.use("/i", instituteRouter);
-router.use(":instituteId/institute-ops", instituteOperationsRouter);
-router.use(":instituteId/student-ops", studentOperationsRouter);
+router.use("/:instituteId/institute-ops", instituteOperationsRouter);
+router.use("/:instituteId/student-ops", studentOperationsRouter);
 
 export default router;

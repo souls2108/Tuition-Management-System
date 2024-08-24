@@ -44,10 +44,7 @@ const removeStudentByEmp = asyncHandler(async (req, res) => {
     .json(
         new ApiResponse(
             200,
-            {
-                user: deletedAdmission.user,
-                institute: deletedAdmission.institute
-            },
+            { deletedAdmission },
             "Student removed"
         )
     )

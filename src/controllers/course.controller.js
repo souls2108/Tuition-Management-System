@@ -25,7 +25,7 @@ const verifyHandleCoursePermission = async (loggedInEmp, courseId) => {
 
 
 const getAllCourses = asyncHandler( async (req, res) => {
-    const { instituteId } = req.params || req.body;
+    const instituteId = req.emp.institute;
     if(!instituteId) {
         throw new ApiError(400, "instituteId field is required");
     }
@@ -43,7 +43,7 @@ const createCourse = asyncHandler(async (req, res) => {
     
     await verifyHandleCoursePermission(req.emp);
 
-    const { instituteId } = req.params || req.body;
+    const instituteId = req.emp.institute;
     const {subject, grade, isActive, description} = req.body;
     if(!instituteId) {
         throw new ApiError(400, "instituteId field is required");

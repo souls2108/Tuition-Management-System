@@ -75,7 +75,7 @@ const getByInstituteId = async (instituteId, pendingOrdersOnly) => {
         },
         {
             $match: {
-                'enrollment.session.course.institute': mongoose.Types.ObjectId(instituteId) 
+                'enrollment.session.course.institute': new mongoose.Types.ObjectId(instituteId) 
             }
         }
     );
@@ -156,7 +156,7 @@ const deleteById = async(orderId) => {
     return await Order.findByIdAndDelete(orderId);
 }
 
-//TODO: complete order called by createTransaction controller
+//TODO: update order state
 
 const OrderService = {
     getBySessionId,

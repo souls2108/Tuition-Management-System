@@ -1,6 +1,3 @@
-todo ->
-    finish routing
-
 routes/
     index.js #
     users/
@@ -39,6 +36,10 @@ routes/
             session.routes.js
             course.routes.js
             enrollment.routes.js
+
+todo->
+    Check for pending orders at institue SERVICE
+
 
 routes:
     /users
