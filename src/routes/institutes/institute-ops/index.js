@@ -23,7 +23,7 @@ router.use("/enroll-request", enrollmentRequestRouter);
 router.use("/request", instituteUserRequestRouter);
 router.use("/orders", orderRouter);
 router.use("/transactions", transactionRouter);
-router.use("/:sessionId", sessionOperationsRouter);
+router.use("/:sessionId/session-ops", sessionOperationsRouter);
 
 
 export default router;

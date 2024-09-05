@@ -64,7 +64,7 @@ routes:
                 DELETE
             /transactions           //TEST
                 GET
-            /:sessionId           //TEST
+            /:sessionId/session-ops           //TEST
                 /enrollments
                     GET
                     PATCH
@@ -81,13 +81,9 @@ routes:
 
         :instituteId/student-ops           //TEST
             /enrollment-request           //TEST
-                /
-                    GET
-                    POST
-                    PATCH
-            /session           //TEST
-                /course
-                /active
+                GET
+                POST
+                PATCH
             /course           //TEST
                 /all
             /:enrollId           //TEST
