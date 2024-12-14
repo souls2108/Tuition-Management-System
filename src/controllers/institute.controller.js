@@ -55,7 +55,6 @@ const getAllInstitute = asyncHandler( async (req, res) => {
 
 const getInstitute = asyncHandler( async (req, res) => {
     const {instituteId} = req.params;
-    console.log(req.params);
 
     if(!instituteId?.trim()) {
         throw new ApiError(400, "Institute field cannot be empty.");
