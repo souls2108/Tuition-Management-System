@@ -253,6 +253,19 @@ const deleteUser = asyncHandler( async ( req, res) => {
     return res.status(200).json(new ApiResponse(204, {}, "User account deleted"))
 });
 
+const getUserById = asyncHandler( async (req, res) => {
+    const {userId} = req.params;
+    
+    if(!userId) {
+        throw new ApiError(400, "userId is required");
+    }
+    const user = await User.findById(userId).select("-password -refreshToken");
+    if(!user) {
+        throw new ApiError(404, "User not found");
+    }
+    return res.status(200).json(new ApiResponse(200, user, "User fetched successfully"));
+});
+
 export {
     registerUser,
     loginUser,
@@ -262,4 +275,5 @@ export {
     getCurrentUser,
     updateAccountDetails,
     deleteUser,
+    getUserById,
 }
